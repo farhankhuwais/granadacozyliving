@@ -202,7 +202,8 @@ export default function KamarPage() {
       });
       alert(isPartial ? "Pembayaran sebagian tercatat" : "Pembayaran lunas tercatat");
     } catch (e: unknown) {
-      alert(`Gagal: ${e instanceof Error ? e.message : String(e)}`);
+      const msg = typeof e === "object" && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
+      alert(`Gagal: ${msg}`);
     }
   }
 
