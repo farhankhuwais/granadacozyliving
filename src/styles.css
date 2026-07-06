@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #000;
+  --foreground: #f5f5f5;
+  --card: #111;
+  --card-foreground: #f5f5f5;
+  --border: #1f1f1f;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --primary: #2563eb;
+  --primary-foreground: #fff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #f8fafc;
+  --success: #22c55e;
+  --gold: #f59e0b;
+  --warning: #f97316;
+}
+
+body {
+  margin: 0;
+  font-family: 'JetBrains Mono', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}

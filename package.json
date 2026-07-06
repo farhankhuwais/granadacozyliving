@@ -1,0 +1,44 @@
+{
+  "name": "granadacozyliving",
+  "version": "1.0.0",
+  "description": "Dashboard Investasi & Manajemen Operasional Real Estate",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "db:push": "drizzle-kit push:pg",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node --loader ts-node/esm src/db/seed.ts"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^3.3.4",
+    "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.51.0",
+    "@tanstack/react-router": "^1.39.0",
+    "drizzle-orm": "^0.31.4",
+    "jspdf": "^2.5.1",
+    "lucide-react": "^0.408.0",
+    "papaparse": "^5.4.1",
+    "pg": "^8.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.1",
+    "react-router-dom": "^7.18.1",
+    "recharts": "^2.12.7",
+    "typescript": "^5.5.3",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.11",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.5.2",
+    "drizzle-kit": "^0.23.0",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^3.4.19",
+    "vite": "^5.1.4"
+  }
+}
