@@ -179,28 +179,36 @@ export default function KamarPage() {
 
   async function handleMarkPaid(tenant: NonNullable<typeof rooms>[number]["tenants"][number], room: NonNullable<typeof rooms>[number]) {
     const fullAmount = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000) * 22;
+    const paidSoFar = tenant.paid_amount || 0;
+    const remaining = fullAmount - paidSoFar;
     const category = room.type === "bulanan" ? "monthly_rent" : "daily_rent";
     const label = room.name || `Kamar ${room.room_number}`;
 
-    const input = prompt(`Jumlah pembayaran untuk ${tenant.name} (Rp):`, fullAmount.toLocaleString("id-ID"));
+    const msg = paidSoFar > 0
+      ? `Sisa pembayaran ${tenant.name}: Rp ${remaining.toLocaleString("id-ID")} (dari Rp ${fullAmount.toLocaleString("id-ID")})`
+      : `Jumlah pembayaran untuk ${tenant.name} (Rp):`;
+    const defaultVal = paidSoFar > 0 ? remaining : fullAmount;
+
+    const input = prompt(msg, defaultVal.toLocaleString("id-ID"));
     if (!input) return;
 
     const amount = parseInt(input.replace(/\D/g, "")) || 0;
     if (amount <= 0) { alert("Jumlah tidak valid"); return; }
 
-    const isPartial = amount < fullAmount;
-    if (isPartial && !confirm(`Bayar sebagian Rp ${amount.toLocaleString("id-ID")}?`)) return;
+    const totalPaid = paidSoFar + amount;
+    const isPartial = totalPaid < fullAmount;
+    if (isPartial && !confirm(`Bayar Rp ${amount.toLocaleString("id-ID")}? Sisa: Rp ${(fullAmount - totalPaid).toLocaleString("id-ID")}`)) return;
 
     try {
       await markPaid.mutateAsync({
         tenantId: tenant.id,
         roomId: room.id,
-        amount,
+        amount: totalPaid,
         category: category as "monthly_rent" | "daily_rent",
-        description: `${isPartial ? "Pembayaran sebagian" : category === "monthly_rent" ? "Sewa bulanan" : "Sewa harian"} - ${label} - ${tenant.name}`,
+        description: `${isPartial ? "Pembayaran sebagian" : category === "monthly_rent" ? "Sewa bulanan" : "Sewa harian"} - ${label} - ${tenant.name}${paidSoFar > 0 ? ` (tahap ke-${Math.ceil(paidSoFar / fullAmount * 2)})` : ""}`,
         isPartial,
       });
-      alert(isPartial ? "Pembayaran sebagian tercatat" : "Pembayaran lunas tercatat");
+      alert(isPartial ? `Pembayaran Rp ${amount.toLocaleString("id-ID")} dicatat. Sisa: Rp ${(fullAmount - totalPaid).toLocaleString("id-ID")}` : "Pembayaran lunas tercatat");
     } catch (e: unknown) {
       const msg = typeof e === "object" && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
       alert(`Gagal: ${msg}`);
@@ -557,18 +565,18 @@ export default function KamarPage() {
                     <p className="text-[11px] text-muted-foreground">
                       {room.name ? `Unit #${room.room_number}` : `Unit lantai ${Math.ceil(room.room_number / 2)}`}
                     </p>
+                    {room.creator && (
+                      <p className="text-[10px] text-muted-foreground/60 mt-px">
+                        Dibuat oleh: {room.creator.full_name}
+                      </p>
+                    )}
                     {tenant && (
-                      <div className="mt-1.5 space-y-0.5">
+                      <div className="mt-2 space-y-0.5">
                         <p className="text-[12px] font-medium text-foreground">{tenant.name}</p>
                         <p className="text-[10px] text-muted-foreground">{tenant.lease_start} — {tenant.lease_end}</p>
                         {tenant.phone && <p className="text-[10px] text-muted-foreground">📞 {tenant.phone}</p>}
                         {tenant.id_number && <p className="text-[10px] text-muted-foreground">{tenant.id_type || "ID"}: {tenant.id_number}</p>}
                       </div>
-                    )}
-                    {room.creator && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-px">
-                        Dibuat oleh: {room.creator.full_name}
-                      </p>
                     )}
                     {room.notes && (
                       <p className="text-[10px] text-muted-foreground/60 mt-px italic">
@@ -609,6 +617,17 @@ export default function KamarPage() {
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     ))}
                 </div>
+
+                {/* Informasi Kamar */}
+                {(room.notes || room.type || room.monthly_price || room.daily_price) && (
+                  <div className="border-t border-border px-4 py-3 space-y-1">
+                    <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">Informasi Kamar</p>
+                    <p className="text-[11px] text-foreground">
+                      {room.type === "bulanan" ? `Bulanan · Rp ${(room.monthly_price || 1500000).toLocaleString("id-ID")}/bln` : `Harian · Rp ${(room.daily_price || 200000).toLocaleString("id-ID")}/malam`}
+                    </p>
+                    {room.notes && <p className="text-[11px] text-muted-foreground italic">{room.notes}</p>}
+                  </div>
+                )}
 
                 {/* Room actions — for empty rooms only */}
                 {profile?.role === "super_admin" && room.status !== "terisi" && (
@@ -755,10 +774,15 @@ export default function KamarPage() {
                       {t.rooms && (
                         <p className="text-[11px] text-muted-foreground">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-1">
-                        {t.lease_start} — {t.lease_end}
-                      </p>
-                      {t.phone && <p className="text-[10px] text-muted-foreground">{t.phone}</p>}
+                      <p className="text-[10px] text-muted-foreground mt-1">{t.lease_start} — {t.lease_end}</p>
+                      {t.phone && <p className="text-[10px] text-muted-foreground">📞 {t.phone}</p>}
+                      {t.id_number && <p className="text-[10px] text-muted-foreground">{t.id_type || "ID"}: {t.id_number}</p>}
+                      {t.paid_amount ? (
+                        <p className="text-[10px] text-success mt-px">Lunas: Rp {t.paid_amount.toLocaleString("id-ID")}</p>
+                      ) : (
+                        <p className="text-[10px] text-destructive mt-px">Belum dibayar</p>
+                      )}
+                      {t.ended_at && <p className="text-[10px] text-muted-foreground/60 mt-px">Selesai: {t.ended_at}</p>}
                     </div>
                     <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold text-muted-foreground">Selesai</span>
                   </div>

@@ -92,7 +92,7 @@ export function useDeleteTenant() {
     }) => {
       const { error } = await supabase
         .from("tenants")
-        .update({ status: "ended" })
+        .update({ status: "ended", ended_at: new Date().toISOString().split("T")[0] })
         .eq("id", id);
       if (error) throw error;
       await supabase
