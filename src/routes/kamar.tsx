@@ -6,6 +6,7 @@ import {
   useUpdateTenant,
   useDeleteTenant,
   useMarkTenantPaid,
+  useTenants,
 } from "@/hooks/use-tenants";
 import MobileLayout from "@/components/MobileLayout";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,6 +20,7 @@ import {
   DoorOpen,
   Pencil,
   DollarSign,
+  User,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -68,6 +70,8 @@ const emptyForm: TenantFormData = {
 
 export default function KamarPage() {
   const { data: rooms, isLoading } = useRooms();
+  const { data: allTenants } = useTenants();
+  const historyTenants = allTenants?.filter(t => t.status === "ended") || [];
   const createTenant = useCreateTenant();
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
@@ -84,6 +88,7 @@ export default function KamarPage() {
   const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number; notes: string }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
   const [filter, setFilter] = useState("semua");
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<"rooms" | "history">("rooms");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
   const [formError, setFormError] = useState("");
@@ -289,8 +294,19 @@ export default function KamarPage() {
         <div className="mb-1 flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-foreground">Status Kamar</h1>
-            <p className="text-sm text-muted-foreground">Ketersediaan unit saat ini</p>
+            <p className="text-sm text-muted-foreground">{view === "rooms" ? "Ketersediaan unit saat ini" : "Riwayat penyewa"}</p>
           </div>
+          <div className="flex gap-1 rounded-xl bg-muted p-1">
+            <button onClick={() => setView("rooms")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${view === "rooms" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              Kamar
+            </button>
+            <button onClick={() => setView("history")}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors ${view === "history" ? "bg-white text-foreground shadow-sm" : "text-muted-foreground"}`}>
+              Riwayat
+            </button>
+          </div>
+        </div>
           {canManage && (
             <div className="flex gap-2">
               {profile?.role === "super_admin" && (
@@ -311,20 +327,18 @@ export default function KamarPage() {
               </button>
             </div>
           )}
-        </div>
 
-        <div className="my-4 flex gap-3">
-          <div className="flex-1 rounded-2xl bg-success/5 border border-success/10 p-3 text-center cursor-pointer" onClick={() => setFilter("terisi")}>
-            <p className="text-2xl font-bold text-success">{terisi}</p>
-            <p className="text-[11px] text-muted-foreground">Terisi</p>
+        {view === "rooms" && (<>
+          <div className="my-4 flex gap-3">
+            <div className="flex-1 rounded-2xl bg-success/5 border border-success/10 p-3 text-center cursor-pointer" onClick={() => setFilter("terisi")}>
+              <p className="text-2xl font-bold text-success">{terisi}</p>
+              <p className="text-[11px] text-muted-foreground">Terisi</p>
+            </div>
+            <div className="flex-1 rounded-2xl bg-muted border border-border p-3 text-center cursor-pointer" onClick={() => setFilter("tersedia")}>
+              <p className="text-2xl font-bold text-muted-foreground">{total - terisi}</p>
+              <p className="text-[11px] text-muted-foreground">Tersedia</p>
+            </div>
           </div>
-          <div className="flex-1 rounded-2xl bg-muted border border-border p-3 text-center cursor-pointer" onClick={() => setFilter("tersedia")}>
-            <p className="text-2xl font-bold text-muted-foreground">
-              {total - terisi}
-            </p>
-            <p className="text-[11px] text-muted-foreground">Tersedia</p>
-          </div>
-        </div>
 
         {/* Filter & Search */}
         <div className="mb-4 flex gap-2 items-center">
@@ -705,6 +719,41 @@ export default function KamarPage() {
             );
           })}
         </div>
+      </>
+      )}
+
+      {/* History view */}
+      {view === "history" && (
+        <div className="pb-6">
+          <h2 className="mb-4 text-sm font-semibold text-foreground">Riwayat Penyewa</h2>
+          {historyTenants.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-8">Belum ada riwayat penyewa</p>
+          ) : (
+            <div className="space-y-3">
+              {historyTenants.map((t) => (
+                <div key={t.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                      {t.rooms && (
+                        <p className="text-[11px] text-muted-foreground">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-1">
+                        {t.lease_start} — {t.lease_end}
+                      </p>
+                      {t.phone && <p className="text-[10px] text-muted-foreground">{t.phone}</p>}
+                    </div>
+                    <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold text-muted-foreground">Selesai</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
       </div>
     </MobileLayout>
   );
