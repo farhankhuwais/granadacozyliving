@@ -51,11 +51,23 @@ export function useCreateRoom() {
       monthly_price?: number;
       daily_price?: number;
     }) => {
+      // Get property_id - use first available if super admin
+      let propertyId = profile?.propertyId;
+      if (!propertyId && profile?.role === "super_admin") {
+        const { data: firstProp } = await supabase
+          .from("properties")
+          .select("id")
+          .limit(1)
+          .single();
+        propertyId = firstProp?.id || null;
+      }
+      if (!propertyId) throw new Error("No property found. Setup property first.");
+
       const { data, error } = await supabase
         .from("rooms")
         .insert({
           ...values,
-          property_id: profile?.propertyId,
+          property_id: propertyId,
           status: "tersedia",
         })
         .select()
