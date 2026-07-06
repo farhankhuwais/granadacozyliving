@@ -9,14 +9,19 @@ export function useTransactions(filters?: {
   type?: string;
 }) {
   const { profile } = useAuth();
+  const isSuperAdmin = profile?.role === "super_admin";
+
   return useQuery({
-    queryKey: ["transactions", profile?.propertyId, filters],
+    queryKey: ["transactions", { superAdmin: isSuperAdmin }, filters],
     queryFn: async () => {
       let query = supabase
         .from("transactions")
-        .select("*")
-        .eq("property_id", profile?.propertyId)
+        .select("*, creator:profiles!created_by(full_name)")
         .order("transaction_date", { ascending: false });
+
+      if (!isSuperAdmin && profile?.propertyId) {
+        query = query.eq("property_id", profile.propertyId);
+      }
 
       if (filters?.dateStart)
         query = query.gte("transaction_date", filters.dateStart);
@@ -57,13 +62,17 @@ export function useCreateTransaction() {
 
 export function useTransactionBreakdown(dateStart?: string, dateEnd?: string) {
   const { profile } = useAuth();
+  const isSuperAdmin = profile?.role === "super_admin";
   return useQuery({
-    queryKey: ["transaction-breakdown", profile?.propertyId, dateStart, dateEnd],
+    queryKey: ["transaction-breakdown", { superAdmin: isSuperAdmin }, dateStart, dateEnd],
     queryFn: async () => {
       let query = supabase
         .from("transactions")
-        .select("*")
-        .eq("property_id", profile?.propertyId);
+        .select("*");
+
+      if (!isSuperAdmin && profile?.propertyId) {
+        query = query.eq("property_id", profile.propertyId);
+      }
 
       if (dateStart) query = query.gte("transaction_date", dateStart);
       if (dateEnd) query = query.lte("transaction_date", dateEnd);

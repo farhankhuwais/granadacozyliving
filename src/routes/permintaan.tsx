@@ -271,6 +271,16 @@ export default function PermintaanPage() {
                           {req.estimated_cost.toLocaleString("id-ID")}
                         </p>
                       )}
+                      {req.creator && (
+                        <p className="mt-0.5 text-[10px] text-muted-foreground">
+                          Oleh: {req.creator.full_name}
+                        </p>
+                      )}
+                      {req.approver && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Disetujui: {req.approver.full_name}
+                        </p>
+                      )}
                     </div>
                     <span
                       className={`rounded-full px-3 py-1 text-[11px] font-semibold ${cfg.cls}`}

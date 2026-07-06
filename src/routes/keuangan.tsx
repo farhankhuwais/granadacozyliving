@@ -358,6 +358,11 @@ export default function KeuanganPage() {
                       {tx.transaction_date}
                       {tx.description ? ` - ${tx.description}` : ""}
                     </p>
+                    {tx.creator && (
+                      <p className="text-[10px] text-muted-foreground">
+                        {tx.creator.full_name}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <span

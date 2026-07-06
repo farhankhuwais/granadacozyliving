@@ -4,17 +4,24 @@ import { useAuth } from "@/hooks/use-auth";
 
 export function useRooms() {
   const { profile } = useAuth();
+  const isSuperAdmin = profile?.role === "super_admin";
+  const propertyId = profile?.propertyId;
+
   return useQuery({
-    queryKey: ["rooms", profile?.propertyId],
+    queryKey: ["rooms", propertyId, { superAdmin: isSuperAdmin }],
     queryFn: async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("rooms")
-        .select("*, tenants(*)")
-        .eq("property_id", profile?.propertyId)
-        .order("room_number");
+        .select("*, tenants(*)");
+
+      if (!isSuperAdmin && propertyId) {
+        query = query.eq("property_id", propertyId);
+      }
+
+      const { data } = await query.order("room_number");
       return data || [];
     },
-    enabled: !!profile?.propertyId,
+    enabled: true,
   });
 }
 

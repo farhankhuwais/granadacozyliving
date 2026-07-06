@@ -7,14 +7,19 @@ export function useRequests(filters?: {
   type?: string;
 }) {
   const { profile } = useAuth();
+  const isSuperAdmin = profile?.role === "super_admin";
+
   return useQuery({
-    queryKey: ["requests", profile?.propertyId, filters],
+    queryKey: ["requests", { superAdmin: isSuperAdmin }, filters],
     queryFn: async () => {
       let query = supabase
         .from("requests")
-        .select("*, rooms(room_number)")
-        .eq("property_id", profile?.propertyId)
+        .select("*, rooms(room_number), creator:profiles!created_by(full_name), approver:profiles!approved_by(full_name)")
         .order("created_at", { ascending: false });
+
+      if (!isSuperAdmin && profile?.propertyId) {
+        query = query.eq("property_id", profile.propertyId);
+      }
 
       if (filters?.status) query = query.eq("status", filters.status);
       if (filters?.type) query = query.eq("type", filters.type);
@@ -22,7 +27,7 @@ export function useRequests(filters?: {
       const { data } = await query;
       return data || [];
     },
-    enabled: !!profile?.propertyId,
+    enabled: true,
   });
 }
 
