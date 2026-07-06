@@ -414,7 +414,7 @@ export default function KamarPage() {
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/5">
                     <BedDouble className="h-5 w-5 text-primary" />
                   </div>
-                  <div className="flex-1">
+                    <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">
                       {room.name || `Kamar ${room.room_number}`}
                     </p>
@@ -422,6 +422,11 @@ export default function KamarPage() {
                       {room.name ? `Unit #${room.room_number}` : `Unit lantai ${Math.ceil(room.room_number / 2)}`}
                       {tenant && ` - ${tenant.name}`}
                     </p>
+                    {room.creator && (
+                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                        Dibuat oleh: {room.creator.full_name}
+                      </p>
+                    )}
                   </div>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${cfg.badge}`}

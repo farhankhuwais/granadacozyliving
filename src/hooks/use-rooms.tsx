@@ -12,7 +12,7 @@ export function useRooms() {
     queryFn: async () => {
       let query = supabase
         .from("rooms")
-        .select("*, tenants(*)");
+        .select("*, tenants(*), creator:profiles!created_by(full_name)");
 
       if (!isSuperAdmin && propertyId) {
         query = query.eq("property_id", propertyId);
@@ -66,8 +66,13 @@ export function useCreateRoom() {
       const { data, error } = await supabase
         .from("rooms")
         .insert({
-          ...values,
+          room_number: values.room_number,
+          name: values.name,
+          type: values.type,
+          monthly_price: values.monthly_price,
+          daily_price: values.daily_price,
           property_id: propertyId,
+          created_by: profile?.id,
           status: "tersedia",
         })
         .select()

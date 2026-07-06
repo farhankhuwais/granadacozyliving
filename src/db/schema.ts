@@ -107,6 +107,7 @@ export const rooms = pgTable(
     propertyId: uuid("property_id").notNull(),
     roomNumber: integer("room_number").notNull(),
     name: text("name"),
+    createdBy: uuid("created_by"),
     type: roomTypeEnum("type").notNull(),
     status: roomStatusEnum("status").default("tersedia").notNull(),
     monthlyPrice: integer("monthly_price"),
