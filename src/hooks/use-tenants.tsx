@@ -119,6 +119,7 @@ export function useMarkTenantPaid() {
       category,
       description,
       isPartial,
+      paidSoFar,
     }: {
       tenantId: string;
       roomId: string;
@@ -126,6 +127,7 @@ export function useMarkTenantPaid() {
       category: "monthly_rent" | "daily_rent";
       description: string;
       isPartial: boolean;
+      paidSoFar: number;
     }) => {
       const { data: room } = await supabase
         .from("rooms").select("property_id").eq("id", roomId).single();
@@ -136,7 +138,7 @@ export function useMarkTenantPaid() {
         .update({
           payment_status: isPartial ? "partial" : "paid",
           last_payment_date: new Date().toISOString().split("T")[0],
-          paid_amount: amount,
+          paid_amount: paidSoFar + amount,
         })
         .eq("id", tenantId);
       if (err1) throw err1;

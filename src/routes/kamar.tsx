@@ -223,10 +223,11 @@ export default function KamarPage() {
       await markPaid.mutateAsync({
         tenantId: tenant.id,
         roomId: room.id,
-        amount: totalPaid,
+        amount: amount,
         category: category as "monthly_rent" | "daily_rent",
-        description: `${isPartial ? "Pembayaran sebagian" : category === "monthly_rent" ? "Sewa bulanan" : "Sewa harian"} - ${label} - ${tenant.name}${paidSoFar > 0 ? ` (tahap ke-${Math.ceil(paidSoFar / fullAmount * 2)})` : ""}`,
+        description: `${isPartial ? "Pembayaran sebagian" : category === "monthly_rent" ? "Sewa bulanan" : "Sewa harian"} - ${label} - ${tenant.name}${paidSoFar > 0 ? ` (tahap ke-${Math.ceil(paidSoFar / (fullAmount || 1) * 2)})` : ""}`,
         isPartial,
+        paidSoFar,
       });
       alert(isPartial ? `Pembayaran Rp ${amount.toLocaleString("id-ID")} dicatat. Sisa: Rp ${(fullAmount - totalPaid).toLocaleString("id-ID")}` : "Pembayaran lunas tercatat");
     } catch (e: unknown) {
