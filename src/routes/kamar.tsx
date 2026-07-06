@@ -198,7 +198,7 @@ export default function KamarPage() {
   }
 
   async function handleMarkPaid(tenant: NonNullable<typeof rooms>[number]["tenants"][number], room: NonNullable<typeof rooms>[number]) {
-    const fullAmount = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000) * 22;
+    const fullAmount = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000);
     const paidSoFar = tenant.paid_amount || 0;
     const remaining = fullAmount - paidSoFar;
     const category = room.type === "bulanan" ? "monthly_rent" : "daily_rent";
@@ -696,7 +696,7 @@ export default function KamarPage() {
                     </span>
                   )}
                   {tenant && tenant.payment_status === "partial" && (() => {
-                    const total = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000) * 22;
+                    const total = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000);
                     const paid = tenant.paid_amount || 0;
                     const sisa = total - paid;
                     return (
@@ -881,7 +881,10 @@ export default function KamarPage() {
                         </div>
                       </div>
                       {t.rooms && (
-                        <p className="text-[11px] text-muted-foreground truncate">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {t.rooms.name || `Kamar ${t.rooms.room_number}`}
+                          <span className="ml-1.5 text-[10px] text-muted-foreground/60">({t.rooms.type})</span>
+                        </p>
                       )}
                       <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
                         <span>{t.lease_start} — {t.lease_end}</span>

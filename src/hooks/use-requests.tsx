@@ -14,7 +14,7 @@ export function useRequests(filters?: {
     queryFn: async () => {
       let query = supabase
         .from("requests")
-        .select("*, rooms(room_number), creator:profiles!created_by(full_name), approver:profiles!approved_by(full_name)")
+        .select("*, rooms(room_number), request_photos(*), creator:profiles!created_by(full_name), approver:profiles!approved_by(full_name)")
         .order("created_at", { ascending: false });
 
       if (!isSuperAdmin && profile?.propertyId) {
@@ -36,11 +36,23 @@ export function useCreateRequest() {
   const { profile } = useAuth();
   return useMutation({
     mutationFn: async (values: Record<string, unknown>) => {
+      // Resolve property_id for super admin
+      let propertyId = profile?.propertyId;
+      if (!propertyId && profile?.role === "super_admin") {
+        const { data: firstProp } = await supabase
+          .from("properties")
+          .select("id")
+          .limit(1)
+          .single();
+        propertyId = firstProp?.id || null;
+      }
+      if (!propertyId) throw new Error("No property found");
+
       const { data, error } = await supabase
         .from("requests")
         .insert({
           ...values,
-          property_id: profile?.propertyId,
+          property_id: propertyId,
           created_by: profile?.id,
           status: "menunggu",
         })

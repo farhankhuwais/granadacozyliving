@@ -5,6 +5,7 @@ import {
   useUpdateRequestStatus,
 } from "@/hooks/use-requests";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import {
   Wrench,
@@ -45,6 +46,8 @@ export default function PermintaanPage() {
     room_id: "",
   });
   const [formError, setFormError] = useState("");
+  const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const canManage =
     profile &&
@@ -57,6 +60,7 @@ export default function PermintaanPage() {
     setForm({ type: "maintenance", title: "", estimated_cost: 0, notes: "", room_id: "" });
     setFormError("");
     setShowForm(false);
+    setPhotoFiles([]);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -73,16 +77,37 @@ export default function PermintaanPage() {
     }
 
     try {
-      await createRequest.mutateAsync({
+      const result = await createRequest.mutateAsync({
         type: form.type,
         title: form.title,
         estimated_cost: form.estimated_cost || null,
         notes: form.notes || null,
         room_id: form.room_id || null,
       });
+
+      // Upload photos
+      if (photoFiles.length > 0 && result?.id && profile?.id) {
+        setUploading(true);
+        for (const file of photoFiles) {
+          const ext = file.name.split(".").pop();
+          const path = `requests/${result.id}/${Date.now()}.${ext}`;
+          await supabase.storage.from("room-photos").upload(path, file);
+          const { data: urlData } = supabase.storage.from("room-photos").getPublicUrl(path);
+          await supabase.from("request_photos").insert({
+            request_id: result.id,
+            photo_url: urlData.publicUrl,
+            photo_type: "evidence",
+            uploaded_by: profile.id,
+          });
+        }
+      }
+
       resetForm();
-    } catch {
-      setFormError("Gagal membuat request");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setFormError(`Gagal: ${msg}`);
+    } finally {
+      setUploading(false);
     }
   }
 
@@ -211,14 +236,36 @@ export default function PermintaanPage() {
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none resize-none"
               />
 
+              {/* Photo upload */}
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
+                📸 {photoFiles.length > 0 ? `${photoFiles.length} foto dipilih` : "Tambah foto (opsional)"}
+                <input type="file" accept="image/*" multiple className="hidden"
+                  onChange={e => {
+                    const files = Array.from(e.target.files || []);
+                    setPhotoFiles(prev => [...prev, ...files].slice(0, 5));
+                    e.target.value = "";
+                  }} />
+              </label>
+              {photoFiles.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {photoFiles.map((f, i) => (
+                    <div key={i} className="relative">
+                      <span className="text-[10px] text-muted-foreground">{f.name.slice(0, 15)}...</span>
+                      <button type="button" onClick={() => setPhotoFiles(prev => prev.filter((_, j) => j !== i))}
+                        className="ml-1 text-destructive text-xs">✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {formError && <p className="text-sm text-destructive">{formError}</p>}
 
               <button
                 type="submit"
-                disabled={createRequest.isPending}
+                disabled={createRequest.isPending || uploading}
                 className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
-                {createRequest.isPending ? "Menyimpan..." : "Kirim Permintaan"}
+                {uploading ? "Mengupload..." : createRequest.isPending ? "Menyimpan..." : "Kirim Permintaan"}
               </button>
             </form>
           </div>
@@ -280,6 +327,18 @@ export default function PermintaanPage() {
                         <p className="text-[10px] text-muted-foreground">
                           Disetujui: {req.approver.full_name}
                         </p>
+                      )}
+                      {req.request_photos?.length > 0 && (
+                        <div className="flex gap-1.5 mt-1">
+                          {req.request_photos.slice(0, 3).map((photo: { id: string; photo_url: string }) => (
+                            <img key={photo.id} src={photo.photo_url} alt=""
+                              className="h-10 w-10 rounded-lg object-cover border border-border cursor-pointer"
+                              onClick={() => window.open(photo.photo_url, '_blank')} />
+                          ))}
+                          {req.request_photos.length > 3 && (
+                            <span className="text-[10px] text-muted-foreground self-center">+{req.request_photos.length - 3}</span>
+                          )}
+                        </div>
                       )}
                     </div>
                     <span
