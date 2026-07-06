@@ -27,11 +27,11 @@ function DashboardRouter() {
   const { profile } = useAuth();
   if (!profile) return null;
 
-  const isInvestor = ["super_admin", "investor_only", "investor_manager"].includes(profile.role);
+  const isManager = ["super_admin", "manager_only", "investor_manager"].includes(profile.role);
 
   return (
     <Routes>
-      <Route path="/" element={isInvestor ? <InvestorDashboardPage /> : <PengelolaPage />} />
+      <Route path="/" element={isManager ? <PengelolaPage /> : <InvestorDashboardPage />} />
       <Route path="/kamar" element={<ProtectedRoute><KamarPage /></ProtectedRoute>} />
       <Route path="/keuangan" element={
         <ProtectedRoute roles={["super_admin", "investor_only", "investor_manager"]}>
