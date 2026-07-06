@@ -21,6 +21,7 @@ import {
   Pencil,
   DollarSign,
   User,
+  LogOut,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -529,7 +530,7 @@ export default function KamarPage() {
                 : statusConfig["tersedia"];
             const isHarian = room.type === "harian" && room.status === "terisi";
             const isExpanded = expandedRoom === room.roomNumber;
-            const tenant = room.tenants?.[0];
+            const tenant = room.tenants?.filter((t: { status: string }) => t.status === "active")?.[0];
 
             return (
               <div
@@ -627,7 +628,7 @@ export default function KamarPage() {
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
                     <button onClick={() => handleEndLease(tenant.id, room.id)} className="text-muted-foreground hover:text-destructive transition-colors" title="Akhiri sewa">
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <LogOut className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 )}
