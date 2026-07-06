@@ -64,22 +64,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function refreshProfile() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const profile = await fetchProfile(user.id);
-      setState((prev) => ({ ...prev, profile }));
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const profile = await fetchProfile(user.id);
+        setState((prev) => ({ ...prev, profile }));
+      }
+    } catch (err) {
+      console.error("[CozyLiving] Refresh profile error:", err);
     }
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const user = session?.user ?? null;
-      let profile: Profile | null = null;
-      if (user) {
-        profile = await fetchProfile(user.id);
-      }
-      setState({ user, session, profile, loading: false });
-    });
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        const user = session?.user ?? null;
+        let profile: Profile | null = null;
+        if (user) {
+          profile = await fetchProfile(user.id);
+        }
+        setState({ user, session, profile, loading: false });
+      })
+      .catch((err) => {
+        console.error("[CozyLiving] Auth session error:", err);
+        setState({ user: null, session: null, profile: null, loading: false });
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
