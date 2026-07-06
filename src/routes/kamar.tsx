@@ -130,7 +130,7 @@ export default function KamarPage() {
   }
 
   async function handleAddRoom() {
-    if (!roomForm.room_number) { alert("Nomor kamar harus diisi"); return; }
+    if (!roomForm.room_number || roomForm.room_number <= 0) { alert("Nomor kamar harus diisi"); return; }
     const exists = rooms?.find(r => r.room_number === roomForm.room_number);
     if (exists) { alert("Nomor kamar sudah ada"); return; }
     try {
