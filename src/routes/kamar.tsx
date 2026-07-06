@@ -23,7 +23,6 @@ import {
   DollarSign,
   User,
   LogOut,
-  Camera,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -93,6 +92,7 @@ export default function KamarPage() {
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"rooms" | "history">("rooms");
   const [roomPhotos, setRoomPhotos] = useState<Record<string, { id: string; photo_url: string; caption: string }[]>>({});
+  const [photoMenu, setPhotoMenu] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
@@ -583,13 +583,39 @@ export default function KamarPage() {
                     setExpandedRoom(isExpanded ? null : room.roomNumber)
                   }
                 >
-                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-primary/5">
+                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-primary/5 cursor-pointer"
+                    onClick={() => setPhotoMenu(photoMenu === room.id ? null : room.id)}>
                     {roomPhotos[room.id]?.[0] ? (
                       <img src={roomPhotos[room.id][0].photo_url} alt="" className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
                         <BedDouble className="h-5 w-5 text-primary" />
                       </div>
+                    )}
+                    {/* Photo menu dropdown */}
+                    {photoMenu === room.id && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setPhotoMenu(null)} />
+                        <div className="absolute left-0 top-full z-50 mt-1 w-36 rounded-xl border border-border bg-white shadow-lg overflow-hidden">
+                          {roomPhotos[room.id]?.[0] && (
+                            <a href={roomPhotos[room.id][0].photo_url} target="_blank" rel="noopener noreferrer"
+                              onClick={() => setPhotoMenu(null)}
+                              className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors">
+                              👁️ Lihat Gambar
+                            </a>
+                          )}
+                          {canManage && (
+                            <label className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors cursor-pointer">
+                              📸 {uploadingPhoto ? "Mengupload..." : "Upload Foto"}
+                              <input type="file" accept="image/*" className="hidden"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) { await handleUploadPhoto(room.id, file); setPhotoMenu(null); e.target.value = ""; }
+                                }} />
+                            </label>
+                          )}
+                        </div>
+                      </>
                     )}
                   </div>
                     <div className="flex-1">
@@ -660,21 +686,6 @@ export default function KamarPage() {
                       {room.type === "bulanan" ? `Bulanan · Rp ${(room.monthly_price || 1500000).toLocaleString("id-ID")}/bln` : `Harian · Rp ${(room.daily_price || 200000).toLocaleString("id-ID")}/malam`}
                     </p>
                     {room.notes && <p className="text-[11px] text-muted-foreground italic">{room.notes}</p>}
-                  </div>
-                )}
-
-                {/* Foto Kamar — button + upload, no gallery section */}
-                {canManage && (
-                  <div className="border-t border-border px-4 py-2">
-                    <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer">
-                      <Camera className="h-3.5 w-3.5" />
-                      {uploadingPhoto ? "Mengupload..." : "Foto"}
-                      <input type="file" accept="image/*" className="hidden"
-                        onChange={async (e) => {
-                          const file = e.target.files?.[0];
-                          if (file) { await handleUploadPhoto(room.id, file); e.target.value = ""; }
-                        }} />
-                    </label>
                   </div>
                 )}
 
