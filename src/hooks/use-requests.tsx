@@ -87,6 +87,29 @@ export function useUpdateRequestStatus() {
         .update(updates)
         .eq("id", id);
       if (error) throw error;
+
+      // Auto-create expense transaction when request is completed
+      if (status === "selesai") {
+        const { data: req } = await supabase
+          .from("requests")
+          .select("title, estimated_cost, property_id, room_id")
+          .eq("id", id)
+          .single();
+        if (req?.estimated_cost && req?.property_id) {
+          const { error: txErr } = await supabase
+            .from("transactions")
+            .insert({
+              property_id: req.property_id,
+              room_id: req.room_id || null,
+              type: "expense",
+              category: "maintenance",
+              amount: req.estimated_cost,
+              description: `Maintenance: ${req.title}`,
+              transaction_date: new Date().toISOString().split("T")[0],
+            });
+          if (txErr) console.error("[Auto expense] failed:", txErr);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });

@@ -48,6 +48,7 @@ export default function PermintaanPage() {
   const [formError, setFormError] = useState("");
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
 
   const canManage =
     profile &&
@@ -329,15 +330,14 @@ export default function PermintaanPage() {
                         </p>
                       )}
                       {req.request_photos?.length > 0 && (
-                        <div className="flex gap-1.5 mt-1">
-                          {req.request_photos.slice(0, 3).map((photo: { id: string; photo_url: string }) => (
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {req.request_photos.map((photo: { id: string; photo_url: string }) => (
                             <img key={photo.id} src={photo.photo_url} alt=""
-                              className="h-10 w-10 rounded-lg object-cover border border-border cursor-pointer"
-                              onClick={() => window.open(photo.photo_url, '_blank')} />
+                              className={`rounded-lg object-cover border cursor-pointer transition-opacity hover:opacity-80 ${
+                                req.status === "menunggu" ? "h-24 w-32 border-primary/30" : "h-14 w-20 border-border"
+                              }`}
+                              onClick={() => setViewerUrl(photo.photo_url)} />
                           ))}
-                          {req.request_photos.length > 3 && (
-                            <span className="text-[10px] text-muted-foreground self-center">+{req.request_photos.length - 3}</span>
-                          )}
                         </div>
                       )}
                     </div>
@@ -396,6 +396,16 @@ export default function PermintaanPage() {
           )}
         </div>
       </div>
+
+      {/* Photo viewer modal */}
+      {viewerUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={() => setViewerUrl(null)}>
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setViewerUrl(null)} className="absolute -top-10 right-0 text-white text-sm hover:text-gray-300">Tutup ✕</button>
+            <img src={viewerUrl} alt="Foto" className="max-h-[85vh] max-w-[85vw] rounded-xl object-contain" />
+          </div>
+        </div>
+      )}
     </MobileLayout>
   );
 }
