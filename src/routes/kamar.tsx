@@ -181,13 +181,25 @@ export default function KamarPage() {
     try {
       // Try RPC function first (bypasses RLS with SECURITY DEFINER)
       const { error: rpcErr } = await supabase.rpc('delete_room_cascade', { room_id: roomId });
-      if (rpcErr) throw rpcErr;
+      if (rpcErr) {
+        console.warn("[DeleteRoom] RPC failed, trying direct delete:", rpcErr);
+        // Fallback: manual delete with individual checks
+        await supabase.from("tenants").delete().eq("room_id", roomId);
+        await supabase.from("room_photos").delete().eq("room_id", roomId);
+        const { data: reqs } = await supabase.from("requests").select("id").eq("room_id", roomId);
+        if (reqs?.length) {
+          await supabase.from("request_photos").delete().in("request_id", reqs.map(r => r.id));
+        }
+        await supabase.from("requests").delete().eq("room_id", roomId);
+        const fallback = await supabase.from("rooms").delete().eq("id", roomId);
+        if (fallback.error) throw fallback.error;
+      }
       alert(`Kamar ${roomNumber} berhasil dihapus`);
       window.location.reload();
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e);
+      const msg = typeof e === 'object' && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
       alert(`Gagal hapus: ${msg}`);
-      console.error("[DeleteRoom]", msg);
+      console.error("[DeleteRoom]", e);
     }
   }
 
