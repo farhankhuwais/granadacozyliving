@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useRooms, useCreateRoom, useDeleteRoom, useUpdateRoom } from "@/hooks/use-rooms";
+import { useRooms, useCreateRoom, useUpdateRoom } from "@/hooks/use-rooms";
+import { supabase } from "@/integrations/supabase/client";
 import {
   useCreateTenant,
   useUpdateTenant,
@@ -69,7 +70,6 @@ export default function KamarPage() {
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
   const createRoom = useCreateRoom();
-  const deleteRoom = useDeleteRoom();
   const updateRoom = useUpdateRoom();
   const { profile } = useAuth();
 
@@ -177,18 +177,29 @@ export default function KamarPage() {
   }
 
   async function handleDeleteRoom(roomId: string, roomNumber: number) {
-    const hasTenants = rooms?.find(r => r.id === roomId)?.tenants?.length;
-    const msg = hasTenants
-      ? `Kamar ${roomNumber} masih punya penyewa. Hapus semua data terkait?`
-      : `Hapus Kamar ${roomNumber}?`;
-    if (!confirm(msg)) return;
+    if (!confirm(`Hapus Kamar ${roomNumber}?`)) return;
     try {
-      await deleteRoom.mutateAsync(roomId);
+      console.log("[DeleteRoom] mulai hapus:", roomId);
+      const { error } = await supabase.rpc('delete_room_cascade', { room_id: roomId });
+      if (error) {
+        // fallback: delete manually
+        console.log("[DeleteRoom] RPC gagal, fallback manual:", error.message);
+        await supabase.from("tenants").delete().eq("room_id", roomId);
+        await supabase.from("room_photos").delete().eq("room_id", roomId);
+        const { data: reqs } = await supabase.from("requests").select("id").eq("room_id", roomId);
+        if (reqs?.length) {
+          await supabase.from("request_photos").delete().in("request_id", reqs.map(r => r.id));
+        }
+        await supabase.from("requests").delete().eq("room_id", roomId);
+        const { error: err } = await supabase.from("rooms").delete().eq("id", roomId);
+        if (err) throw err;
+      }
       alert(`Kamar ${roomNumber} berhasil dihapus`);
+      window.location.reload();
     } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : String(e);
-      alert(`Gagal: ${errMsg}`);
-      console.error("[DeleteRoom]", errMsg);
+      const msg = e instanceof Error ? e.message : String(e);
+      alert(`Gagal: ${msg}`);
+      console.error("[DeleteRoom] error:", msg);
     }
   }
 
