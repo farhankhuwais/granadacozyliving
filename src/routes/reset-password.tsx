@@ -61,18 +61,18 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-black px-4">
+      <div className="flex min-h-screen items-center justify-center bg-white px-4">
         <div className="w-full max-w-sm text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-600/20">
-            <span className="text-2xl text-green-400">✓</span>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-success/20">
+            <span className="text-2xl text-success">✓</span>
           </div>
-          <h1 className="text-xl font-bold text-white">Password Diubah</h1>
-          <p className="mt-2 text-sm text-gray-400">
+          <h1 className="text-xl font-bold text-foreground">Password Diubah</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             Password berhasil diperbarui. Silakan login dengan password baru.
           </p>
           <a
             href="/"
-            className="mt-4 inline-block rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+            className="mt-4 inline-block rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             Kembali ke Login
           </a>
@@ -82,31 +82,31 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-white">Reset Password</h1>
-          <p className="mt-1 text-sm text-gray-400">
+          <h1 className="text-2xl font-bold text-foreground">Reset Password</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
             Masukkan password baru
           </p>
         </div>
 
         {!tokenValid && !error && (
           <div className="flex justify-center">
-            <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-600 border-t-white" />
+            <div className="h-6 w-6 animate-spin rounded-full border-2 border-muted-foreground/30 border-t-primary" />
           </div>
         )}
 
         {error && !tokenValid && (
-          <div className="rounded-xl border border-red-800 bg-red-900/20 p-4">
-            <p className="text-sm text-red-400">{error}</p>
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4">
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         )}
 
         {tokenValid && (
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-foreground">
                 Password Baru
               </label>
               <input
@@ -114,14 +114,14 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Minimal 8 karakter"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 required
                 minLength={8}
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-300">
+              <label className="mb-1 block text-sm font-medium text-foreground">
                 Konfirmasi Password
               </label>
               <input
@@ -129,20 +129,20 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Ulangi password"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 required
                 minLength={8}
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-400 text-center">{error}</p>
+              <p className="text-sm text-destructive text-center">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               {loading ? "Memproses..." : "Simpan Password"}
             </button>

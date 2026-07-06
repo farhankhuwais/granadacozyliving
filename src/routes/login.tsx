@@ -42,16 +42,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-black px-4">
+    <div className="flex min-h-screen items-center justify-center bg-white px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-white">Cozy Living</h1>
-          <p className="mt-1 text-sm text-gray-400">by Granada</p>
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+            <span className="text-xl text-primary">CL</span>
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">Cozy Living</h1>
+          <p className="mt-1 text-sm text-muted-foreground">by Granada</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Email
             </label>
             <input
@@ -59,13 +62,13 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="admin@cozyliving.com"
-              className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Password
             </label>
             <input
@@ -73,19 +76,19 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+              className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
               required
             />
           </div>
 
           {error && (
-            <p className="text-sm text-red-400 text-center">{error}</p>
+            <p className="text-sm text-destructive text-center">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-blue-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+            className="w-full rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? "Memproses..." : "Masuk"}
           </button>
@@ -94,7 +97,7 @@ export default function LoginPage() {
             type="button"
             onClick={handleResetPassword}
             disabled={loading}
-            className="w-full text-center text-sm text-gray-500 hover:text-gray-300 transition-colors"
+            className="w-full text-center text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Lupa password?
           </button>

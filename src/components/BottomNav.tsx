@@ -22,7 +22,7 @@ export default function BottomNav() {
   const currentPath = location.pathname;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-800 bg-black bg-opacity-95 backdrop-blur-lg">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-primary/20 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
       <div className="mx-auto flex max-w-lg items-center justify-around px-2 py-2">
         {navItems
           .filter((item) => profile && item.roles.includes(profile.role))
@@ -32,8 +32,8 @@ export default function BottomNav() {
               to={item.path}
               className={`flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 transition-colors ${
                 currentPath === item.path
-                  ? "text-blue-400"
-                  : "text-gray-500 hover:text-gray-300"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <item.icon className="h-5 w-5" />
