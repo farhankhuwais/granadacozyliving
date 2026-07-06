@@ -32,9 +32,9 @@ export default function ProtectedRoute({ children, roles }: ProtectedRouteProps)
           <div className="mx-auto mb-4 h-12 w-12 flex items-center justify-center rounded-full bg-red-900/20">
             <span className="text-xl text-red-400">!</span>
           </div>
-          <h1 className="text-xl font-bold text-white">Akses Ditolak</h1>
-          <p className="mt-2 text-sm text-gray-400">Anda tidak memiliki izin.</p>
-          <a href="/" className="mt-4 inline-block rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white">Kembali</a>
+          <h1 className="text-xl font-bold text-foreground">Akses Ditolak</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Anda tidak memiliki izin.</p>
+          <a href="/" className="mt-4 inline-block rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground">Kembali</a>
         </div>
       </div>
     );

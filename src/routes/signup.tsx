@@ -22,11 +22,13 @@ export default function SignupPage() {
     setSuccess("");
     setLoading(true);
 
-    const { data, error: signUpError } = await supabase.auth.admin.createUser({
+    // Use signUp instead of admin.createUser (admin API requires service_role key server-side)
+    const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
-      email_confirm: true,
-      user_metadata: { full_name: fullName, role },
+      options: {
+        data: { full_name: fullName, role },
+      },
     });
 
     if (signUpError) {
@@ -36,18 +38,30 @@ export default function SignupPage() {
     }
 
     if (data?.user) {
+      const { data: propertyData } = await supabase
+        .from("properties")
+        .select("id")
+        .limit(1)
+        .single();
+
       const { error: profileError } = await supabase.from("profiles").insert({
         id: data.user.id,
         email: data.user.email,
         full_name: fullName,
         role,
-        property_id: (await supabase.from("properties").select("id").limit(1).single()).data?.id || null,
+        property_id: propertyData?.id || null,
       });
 
       if (profileError) {
         setError(profileError.message);
       } else {
-        setSuccess(`Akun ${email} berhasil dibuat sebagai ${role}`);
+        setSuccess(
+          `Akun ${email} berhasil dibuat sebagai ${role}. ${
+            !data.session
+              ? "User perlu konfirmasi email sebelum login."
+              : "User sudah bisa login sekarang."
+          }`
+        );
         setEmail("");
         setPassword("");
         setFullName("");

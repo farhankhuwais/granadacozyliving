@@ -17,7 +17,7 @@ function LoadingScreen() {
     <div className="flex h-screen items-center justify-center bg-black">
       <div className="text-center">
         <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-gray-600 border-t-white" />
-        <p className="text-sm text-gray-400">Memuat...</p>
+        <p className="text-sm text-muted-foreground">Memuat...</p>
       </div>
     </div>
   );

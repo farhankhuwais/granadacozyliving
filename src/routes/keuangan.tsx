@@ -153,7 +153,7 @@ export default function KeuanganPage() {
             {transactions && transactions.length > 0 && (
               <button
                 onClick={handleExportCSV}
-                className="flex items-center gap-1 rounded-xl border border-gray-800 px-3 py-2 text-xs text-gray-400 hover:text-white"
+                className="flex items-center gap-1 rounded-xl border border-border px-3 py-2 text-xs text-muted-foreground hover:text-foreground"
               >
                 <Download className="h-3.5 w-3.5" />
                 CSV
@@ -253,7 +253,7 @@ export default function KeuanganPage() {
               <select
                 value={form.category}
                 onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
               >
                 {(form.type === "income" ? incomeCategories : expenseCategories).map(
                   (c) => (
@@ -271,36 +271,16 @@ export default function KeuanganPage() {
                   setForm({ ...form, amount: parseInt(e.target.value) || 0 })
                 }
                 placeholder="Jumlah (Rp)"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 required
               />
 
-              <input
-                type="date"
-                value={form.transaction_date}
-                onChange={(e) =>
-                  setForm({ ...form, transaction_date: e.target.value })
-                }
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
-                required
-              />
-
-              <input
-                type="text"
-                value={form.description}
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                placeholder="Deskripsi (opsional)"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
-              />
-
-              {formError && <p className="text-sm text-red-400">{formError}</p>}
+              {formError && <p className="text-sm text-destructive">{formError}</p>}
 
               <button
                 type="submit"
                 disabled={createTransaction.isPending}
-                className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {createTransaction.isPending ? "Menyimpan..." : "Simpan"}
               </button>
@@ -315,7 +295,7 @@ export default function KeuanganPage() {
             onChange={(e) =>
               setFilters({ ...filters, type: e.target.value })
             }
-            className="rounded-xl border border-gray-800 bg-gray-900 px-3 py-2 text-xs text-white"
+            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground"
           >
             <option value="">Semua Tipe</option>
             <option value="income">Pendapatan</option>
@@ -326,11 +306,11 @@ export default function KeuanganPage() {
             onChange={(e) =>
               setFilters({ ...filters, category: e.target.value })
             }
-            className="rounded-xl border border-gray-800 bg-gray-900 px-3 py-2 text-xs text-white"
+            className="rounded-xl border border-border bg-card px-3 py-2 text-xs text-foreground"
           >
             <option value="">Semua Kategori</option>
-            {[...incomeCategories, ...expenseCategories].map((c) => (
-              <option key={c.value} value={c.value}>
+            {[...incomeCategories.map(c => ({...c, type: 'income'})), ...expenseCategories.map(c => ({...c, type: 'expense'}))].map((c) => (
+              <option key={`${c.type}-${c.value}`} value={c.value}>
                 {c.label}
               </option>
             ))}

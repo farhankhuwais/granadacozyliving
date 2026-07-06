@@ -5,6 +5,7 @@ import {
   Wallet,
   ClipboardList,
   User,
+  Shield,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -14,6 +15,7 @@ const navItems = [
   { path: "/keuangan", icon: Wallet, label: "Keuangan", roles: ["super_admin", "investor_only", "investor_manager"] },
   { path: "/permintaan", icon: ClipboardList, label: "Permintaan", roles: ["super_admin", "manager_only", "investor_manager"] },
   { path: "/profil", icon: User, label: "Profil", roles: ["super_admin", "investor_only", "manager_only", "investor_manager"] },
+  { path: "/admin/users", icon: Shield, label: "Admin", roles: ["super_admin"] },
 ];
 
 export default function BottomNav() {

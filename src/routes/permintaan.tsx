@@ -187,7 +187,7 @@ export default function PermintaanPage() {
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="Judul permintaan"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 required
               />
 
@@ -199,7 +199,7 @@ export default function PermintaanPage() {
                     setForm({ ...form, estimated_cost: parseInt(e.target.value) || 0 })
                   }
                   placeholder="Estimasi biaya (Rp)"
-                  className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 />
               )}
 
@@ -208,15 +208,15 @@ export default function PermintaanPage() {
                 onChange={(e) => setForm({ ...form, notes: e.target.value })}
                 placeholder="Catatan (opsional)"
                 rows={2}
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none resize-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none resize-none"
               />
 
-              {formError && <p className="text-sm text-red-400">{formError}</p>}
+              {formError && <p className="text-sm text-destructive">{formError}</p>}
 
               <button
                 type="submit"
                 disabled={createRequest.isPending}
-                className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {createRequest.isPending ? "Menyimpan..." : "Kirim Permintaan"}
               </button>

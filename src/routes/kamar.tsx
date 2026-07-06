@@ -174,7 +174,7 @@ export default function KamarPage() {
               <select
                 value={selectedRoomId || ""}
                 onChange={(e) => setSelectedRoomId(e.target.value)}
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                 required
               >
                 <option value="">Pilih Kamar</option>
@@ -192,7 +192,7 @@ export default function KamarPage() {
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
                 placeholder="Nama penyewa"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 required
               />
               <input
@@ -200,7 +200,7 @@ export default function KamarPage() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="No. telepon"
-                className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
               />
 
               <div className="grid grid-cols-2 gap-2">
@@ -214,7 +214,7 @@ export default function KamarPage() {
                     onChange={(e) =>
                       setForm({ ...form, leaseStart: e.target.value })
                     }
-                    className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                     required
                   />
                 </div>
@@ -228,7 +228,7 @@ export default function KamarPage() {
                     onChange={(e) =>
                       setForm({ ...form, leaseEnd: e.target.value })
                     }
-                    className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
+                    className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                     required
                   />
                 </div>
@@ -238,7 +238,7 @@ export default function KamarPage() {
                 <select
                   value={form.idType}
                   onChange={(e) => setForm({ ...form, idType: e.target.value })}
-                  className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white focus:border-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:border-primary focus:outline-none"
                 >
                   <option value="KTP">KTP</option>
                   <option value="SIM">SIM</option>
@@ -251,18 +251,18 @@ export default function KamarPage() {
                     setForm({ ...form, idNumber: e.target.value })
                   }
                   placeholder="No. identitas"
-                  className="w-full rounded-xl border border-gray-800 bg-gray-900 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:border-blue-600 focus:outline-none"
+                  className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none"
                 />
               </div>
 
               {formError && (
-                <p className="text-sm text-red-400">{formError}</p>
+                <p className="text-sm text-destructive">{formError}</p>
               )}
 
               <button
                 type="submit"
                 disabled={createTenant.isPending}
-                className="w-full rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {createTenant.isPending ? "Menyimpan..." : "Simpan"}
               </button>

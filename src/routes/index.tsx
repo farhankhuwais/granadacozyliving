@@ -136,9 +136,10 @@ export default function InvestorDashboardPage() {
                     formatter={(value) => formatRupiah(Number(value))}
                     contentStyle={{
                       borderRadius: "12px",
-                      border: "1px solid #333",
+                      border: "1px solid #e5e5e5",
                       fontSize: "12px",
-                      background: "#111",
+                      background: "#fff",
+                      color: "#1a1a1a",
                     }}
                   />
                 </PieChart>
