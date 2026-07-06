@@ -34,7 +34,7 @@ const typeIcons: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 export default function PermintaanPage() {
-  const { data: requests, isLoading } = useRequests();
+  const { data: requests, isLoading, refetch } = useRequests();
   const createRequest = useCreateRequest();
   const updateStatus = useUpdateRequestStatus();
   const deleteRequest = useDeleteRequest();
@@ -53,6 +53,7 @@ export default function PermintaanPage() {
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
+  const [uploadingRoom, setUploadingRoom] = useState<string | null>(null);
 
   const canManage =
     profile &&
@@ -158,6 +159,26 @@ export default function PermintaanPage() {
     if (!confirm(`Hapus semua ${requests?.length || 0} permintaan?`)) return;
     try { await deleteAllRequests.mutateAsync(); }
     catch { alert("Gagal hapus semua"); }
+  }
+
+  async function handleUpload(requestId: string, file: File, type: string) {
+    if (!profile?.id) return;
+    setUploadingRoom(requestId);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `requests/${requestId}/${type}_${Date.now()}.${ext}`;
+      await supabase.storage.from("room-photos").upload(path, file);
+      const { data: urlData } = supabase.storage.from("room-photos").getPublicUrl(path);
+      await supabase.from("request_photos").insert({
+        request_id: requestId,
+        photo_url: urlData.publicUrl,
+        photo_type: type,
+        uploaded_by: profile.id,
+      });
+      // Refetch requests to show new photo
+      await refetch();
+    } catch (e) { alert(`Gagal upload: ${e instanceof Error ? e.message : "error"}`); }
+    setUploadingRoom(null);
   }
 
   const filteredRequests = requests?.filter((r) => {
@@ -354,13 +375,42 @@ export default function PermintaanPage() {
                       )}
                       {req.request_photos?.length > 0 && (
                         <div className="flex gap-2 mt-2 flex-wrap">
-                          {req.request_photos.map((photo: { id: string; photo_url: string }) => (
-                            <img key={photo.id} src={photo.photo_url} alt=""
-                              className={`rounded-lg object-cover border cursor-pointer transition-opacity hover:opacity-80 ${
-                                req.status === "menunggu" ? "h-24 w-32 border-primary/30" : "h-14 w-20 border-border"
-                              }`}
-                              onClick={() => setViewerUrl(photo.photo_url)} />
+                          {req.request_photos.sort((a: any) => a.photo_type === "after" ? 1 : -1).map((photo: { id: string; photo_url: string; photo_type: string }) => (
+                            <div key={photo.id} className="relative">
+                              <img src={photo.photo_url} alt=""
+                                className={`rounded-lg object-cover border cursor-pointer transition-opacity hover:opacity-80 ${
+                                  req.status === "menunggu" ? "h-24 w-32 border-primary/30" : "h-16 w-20 border-border"
+                                }`}
+                                onClick={() => setViewerUrl(photo.photo_url)} />
+                              <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1 rounded-full ${photo.photo_type === "after" ? "bg-success text-white" : "bg-warning text-white"}`}>
+                                {photo.photo_type === "after" ? "A" : "S"}
+                              </span>
+                            </div>
                           ))}
+                          {uploadingRoom === req.id && (
+                            <div className="h-16 w-20 rounded-lg border border-border bg-muted flex items-center justify-center text-[10px] text-muted-foreground">Uploading...</div>
+                          )}
+                        </div>
+                      )}
+                      {/* Upload photos when in progress */}
+                      {canManage && (req.status === "proses" || req.status === "diizinkan") && (
+                        <div className="flex gap-2 mt-2">
+                          <label className="flex items-center gap-1 text-[10px] text-primary cursor-pointer">
+                            📸 Before
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) await handleUpload(req.id, file, "before");
+                              e.target.value = "";
+                            }} />
+                          </label>
+                          <label className="flex items-center gap-1 text-[10px] text-success cursor-pointer">
+                            📸 After
+                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (file) await handleUpload(req.id, file, "after");
+                              e.target.value = "";
+                            }} />
+                          </label>
                         </div>
                       )}
                     </div>

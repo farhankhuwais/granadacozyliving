@@ -124,6 +124,8 @@ export function useDeleteRequest() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      // Delete photos first, then request
+      await supabase.from("request_photos").delete().eq("request_id", id);
       const { error } = await supabase.from("requests").delete().eq("id", id);
       if (error) throw error;
     },
@@ -139,6 +141,16 @@ export function useDeleteAllRequests() {
   const { profile } = useAuth();
   return useMutation({
     mutationFn: async () => {
+      // Get request IDs first
+      let idsQuery = supabase.from("requests").select("id");
+      if (profile?.role !== "super_admin" && profile?.propertyId) {
+        idsQuery = idsQuery.eq("property_id", profile.propertyId);
+      }
+      const { data: ids } = await idsQuery;
+      if (ids?.length) {
+        await supabase.from("request_photos").delete().in("request_id", ids.map(r => r.id));
+      }
+      // Delete all requests
       let query = supabase.from("requests").delete();
       if (profile?.role !== "super_admin" && profile?.propertyId) {
         query = query.eq("property_id", profile.propertyId);
