@@ -73,7 +73,29 @@ export function useDeleteRoom() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      // Delete related data first, then room
+      await supabase.from("tenants").delete().eq("room_id", id);
+      await supabase.from("room_photos").delete().eq("room_id", id);
+      await supabase.from("requests").delete().eq("room_id", id);
+      await supabase.from("request_photos").delete().eq("room_id", id);
+      // Not needed since request_photos uses request_id, but keep for safety
       const { error } = await supabase.from("rooms").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+    },
+  });
+}
+
+export function useUpdateRoom() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...values }: { id: string; [key: string]: unknown }) => {
+      const { error } = await supabase.from("rooms").update(values).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {

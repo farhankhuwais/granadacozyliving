@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRooms, useCreateRoom, useDeleteRoom } from "@/hooks/use-rooms";
+import { useRooms, useCreateRoom, useDeleteRoom, useUpdateRoom } from "@/hooks/use-rooms";
 import {
   useCreateTenant,
   useDeleteTenant,
@@ -67,11 +67,13 @@ export default function KamarPage() {
   const deleteTenant = useDeleteTenant();
   const createRoom = useCreateRoom();
   const deleteRoom = useDeleteRoom();
+  const updateRoom = useUpdateRoom();
   const { profile } = useAuth();
 
   const [expandedRoom, setExpandedRoom] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showRoomForm, setShowRoomForm] = useState(false);
+  const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null } | null>(null);
   const [roomForm, setRoomForm] = useState<{ room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
@@ -142,9 +144,44 @@ export default function KamarPage() {
   }
 
   async function handleDeleteRoom(roomId: string, roomNumber: number) {
-    if (!confirm(`Yakin hapus Kamar ${roomNumber}? Data terkait akan terhapus.`)) return;
-    try { await deleteRoom.mutateAsync(roomId); }
-    catch { alert("Gagal menghapus kamar"); }
+    const hasTenants = rooms?.find(r => r.id === roomId)?.tenants?.length;
+    const msg = hasTenants
+      ? `Kamar ${roomNumber} masih punya penyewa aktif. Lanjutkan akan hapus semua data.`
+      : `Yakin hapus Kamar ${roomNumber}?`;
+    if (!confirm(msg)) return;
+    try {
+      await deleteRoom.mutateAsync(roomId);
+      alert(`Kamar ${roomNumber} berhasil dihapus`);
+    } catch (e) {
+      alert(`Gagal menghapus kamar: ${e instanceof Error ? e.message : "unknown error"}`);
+    }
+  }
+
+  function startEditRoom(room: NonNullable<typeof rooms>[number]) {
+    setEditingRoom({
+      id: room.id,
+      room_number: room.room_number,
+      type: room.type,
+      monthly_price: room.monthly_price,
+      daily_price: room.daily_price,
+    });
+  }
+
+  async function handleSaveRoom() {
+    if (!editingRoom) return;
+    try {
+      console.log("Saving room:", editingRoom);
+      await updateRoom.mutateAsync({
+        id: editingRoom.id,
+        type: editingRoom.type,
+        monthly_price: editingRoom.type === "bulanan" ? editingRoom.monthly_price : null,
+        daily_price: editingRoom.type === "harian" ? editingRoom.daily_price : null,
+      });
+      setEditingRoom(null);
+      alert("Kamar berhasil diupdate");
+    } catch (e) {
+      alert(`Gagal update kamar: ${e instanceof Error ? e.message : "unknown error"}`);
+    }
   }
 
   if (isLoading) {
@@ -401,13 +438,21 @@ export default function KamarPage() {
                   <div className="border-t border-border px-4 py-2 flex justify-between items-center">
                     <div>
                       {profile?.role === "super_admin" && (
-                        <button
-                          onClick={() => handleDeleteRoom(room.id, room.room_number)}
-                          className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Hapus Kamar
-                        </button>
+                        <>
+                          <button
+                            onClick={() => startEditRoom(room)}
+                            className="flex items-center gap-1 text-xs text-primary hover:text-primary/80"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteRoom(room.id, room.room_number)}
+                            className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                            Hapus
+                          </button>
+                        </>
                       )}
                     </div>
                     <button
@@ -419,6 +464,38 @@ export default function KamarPage() {
                     </button>
                   </div>
                 )}
+
+                {/* Edit room form */}
+                {editingRoom?.id === room.id && profile?.role === "super_admin" && (() => {
+                  const er = editingRoom!;
+                  return (
+                  <div className="border-t border-border bg-muted/30 px-4 py-3 space-y-2">
+                    <div className="flex gap-2">
+                      <button type="button"
+                        onClick={() => setEditingRoom({ ...er, type: "bulanan" })}
+                        className={`flex-1 rounded-lg py-1.5 text-xs font-semibold ${er.type === "bulanan" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                        Bulanan
+                      </button>
+                      <button type="button"
+                        onClick={() => setEditingRoom({ ...er, type: "harian" })}
+                        className={`flex-1 rounded-lg py-1.5 text-xs font-semibold ${er.type === "harian" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                        Harian
+                      </button>
+                    </div>
+                    <input type="number"
+                      value={er.type === "bulanan" ? er.monthly_price || "" : er.daily_price || ""}
+                      onChange={e => {
+                        const v = parseInt(e.target.value) || 0;
+                        setEditingRoom({ ...er, ...(er.type === "bulanan" ? { monthly_price: v } : { daily_price: v }) });
+                      }}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    <div className="flex gap-2">
+                      <button onClick={handleSaveRoom} className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-white">Simpan</button>
+                      <button onClick={() => setEditingRoom(null)} className="flex-1 rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground">Batal</button>
+                    </div>
+                  </div>
+                  );
+                })()}
 
                 {/* Daily rent detail */}
                 {isHarian && isExpanded && (
