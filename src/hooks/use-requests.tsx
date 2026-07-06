@@ -92,7 +92,7 @@ export function useUpdateRequestStatus() {
       if (status === "selesai") {
         const { data: req } = await supabase
           .from("requests")
-          .select("title, estimated_cost, property_id, room_id")
+          .select("title, estimated_cost, property_id, room_id, created_by")
           .eq("id", id)
           .single();
         if (req?.estimated_cost && req?.property_id) {
@@ -106,10 +106,45 @@ export function useUpdateRequestStatus() {
               amount: req.estimated_cost,
               description: `Maintenance: ${req.title}`,
               transaction_date: new Date().toISOString().split("T")[0],
+              created_by: req.created_by || approvedBy || null,
             });
           if (txErr) console.error("[Auto expense] failed:", txErr);
+          else console.log("[Auto expense] created:", req.estimated_cost);
         }
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteRequest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("requests").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteAllRequests() {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+  return useMutation({
+    mutationFn: async () => {
+      let query = supabase.from("requests").delete();
+      if (profile?.role !== "super_admin" && profile?.propertyId) {
+        query = query.eq("property_id", profile.propertyId);
+      }
+      const { error } = await query;
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["requests"] });

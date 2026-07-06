@@ -3,6 +3,8 @@ import {
   useRequests,
   useCreateRequest,
   useUpdateRequestStatus,
+  useDeleteRequest,
+  useDeleteAllRequests,
 } from "@/hooks/use-requests";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,6 +37,8 @@ export default function PermintaanPage() {
   const { data: requests, isLoading } = useRequests();
   const createRequest = useCreateRequest();
   const updateStatus = useUpdateRequestStatus();
+  const deleteRequest = useDeleteRequest();
+  const deleteAllRequests = useDeleteAllRequests();
   const { profile } = useAuth();
 
   const [showForm, setShowForm] = useState(false);
@@ -144,6 +148,18 @@ export default function PermintaanPage() {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Hapus permintaan ini?")) return;
+    try { await deleteRequest.mutateAsync(id); }
+    catch { alert("Gagal hapus"); }
+  }
+
+  async function handleDeleteAll() {
+    if (!confirm(`Hapus semua ${requests?.length || 0} permintaan?`)) return;
+    try { await deleteAllRequests.mutateAsync(); }
+    catch { alert("Gagal hapus semua"); }
+  }
+
   const filteredRequests = requests?.filter((r) => {
     const showForManager =
       canManage || r.status === "menunggu" || r.status === "diizinkan";
@@ -164,13 +180,20 @@ export default function PermintaanPage() {
             <p className="text-sm text-muted-foreground">Pemeliharaan dan kebutuhan unit</p>
           </div>
           {canManage && (
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
-            >
-              {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-              {showForm ? "Tutup" : "Buat"}
-            </button>
+            <div className="flex gap-2">
+              {requests && requests.length > 0 && (
+                <button onClick={handleDeleteAll} className="flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-white px-3.5 py-2 text-xs font-semibold text-destructive">
+                  Hapus Semua
+                </button>
+              )}
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                {showForm ? "Tutup" : "Buat"}
+              </button>
+            </div>
           )}
         </div>
 
@@ -346,6 +369,11 @@ export default function PermintaanPage() {
                     >
                       {cfg.label}
                     </span>
+                    {canManage && (
+                      <button onClick={() => handleDelete(req.id)} className="text-muted-foreground hover:text-destructive transition-colors shrink-0 ml-2" title="Hapus">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Approve/Reject (Investor) */}
