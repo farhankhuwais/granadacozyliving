@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useRooms, useCreateRoom, useDeleteRoom, useUpdateRoom } from "@/hooks/use-rooms";
 import {
   useCreateTenant,
+  useUpdateTenant,
   useDeleteTenant,
 } from "@/hooks/use-tenants";
 import MobileLayout from "@/components/MobileLayout";
@@ -64,6 +65,7 @@ const emptyForm: TenantFormData = {
 export default function KamarPage() {
   const { data: rooms, isLoading } = useRooms();
   const createTenant = useCreateTenant();
+  const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
   const createRoom = useCreateRoom();
   const deleteRoom = useDeleteRoom();
@@ -73,6 +75,7 @@ export default function KamarPage() {
   const [expandedRoom, setExpandedRoom] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showRoomForm, setShowRoomForm] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<{ id: string; name: string; phone: string; leaseStart: string; leaseEnd: string } | null>(null);
   const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; name: string; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null } | null>(null);
   const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -126,6 +129,33 @@ export default function KamarPage() {
       await deleteTenant.mutateAsync({ id: tenantId, roomId });
     } catch {
       alert("Gagal mengakhiri sewa. Coba lagi.");
+    }
+  }
+
+  function startEditTenant(tenant: NonNullable<typeof rooms>[number]["tenants"][number]) {
+    setEditingTenant({
+      id: tenant.id,
+      name: tenant.name,
+      phone: tenant.phone || "",
+      leaseStart: tenant.lease_start,
+      leaseEnd: tenant.lease_end,
+    });
+  }
+
+  async function handleSaveTenant() {
+    if (!editingTenant) return;
+    try {
+      await updateTenant.mutateAsync({
+        id: editingTenant.id,
+        name: editingTenant.name,
+        phone: editingTenant.phone,
+        lease_start: editingTenant.leaseStart,
+        lease_end: editingTenant.leaseEnd,
+      } as { id: string; [key: string]: unknown });
+      setEditingTenant(null);
+      alert("Data penyewa diupdate");
+    } catch (e) {
+      alert(`Gagal: ${e instanceof Error ? e.message : "error"}`);
     }
   }
 
@@ -444,33 +474,25 @@ export default function KamarPage() {
 
                 {/* Tenant actions */}
                 {room.status === "terisi" && tenant && canManage && (
-                  <div className="border-t border-border px-4 py-2 flex justify-between items-center">
-                    <div>
-                      {profile?.role === "super_admin" && (
-                        <>
-                          <button
-                            onClick={() => startEditRoom(room)}
-                            className="flex items-center gap-1 text-xs text-primary hover:text-primary/80"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDeleteRoom(room.id, room.room_number)}
-                            className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                            Hapus
-                          </button>
-                        </>
-                      )}
+                  <div className="border-t border-border px-4 py-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => startEditTenant(tenant)} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80">
+                        Edit Tenant
+                      </button>
+                      <button onClick={() => handleEndLease(tenant.id, room.id)} className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300">
+                        <Trash2 className="h-3 w-3" /> Akhiri Sewa
+                      </button>
                     </div>
-                    <button
-                      onClick={() => handleEndLease(tenant.id, room.id)}
-                      className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                      Akhiri Sewa
-                    </button>
+                    {profile?.role === "super_admin" && (
+                      <div className="flex items-center gap-2 border-l border-border pl-2">
+                        <button onClick={() => startEditRoom(room)} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80">
+                          Edit Kamar
+                        </button>
+                        <button onClick={() => handleDeleteRoom(room.id, room.room_number)} className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80">
+                          <Trash2 className="h-3 w-3" /> Hapus Kamar
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -523,6 +545,35 @@ export default function KamarPage() {
                     </div>
                   </div>
                 )}
+
+                {/* Edit tenant form */}
+                {editingTenant?.id === tenant?.id && (() => {
+                  const et = editingTenant!;
+                  return (
+                  <div className="border-t border-border bg-muted/30 px-4 py-3 space-y-2">
+                    <input type="text" value={et.name}
+                      onChange={e => setEditingTenant({ ...et, name: e.target.value })}
+                      placeholder="Nama penyewa"
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    <input type="text" value={et.phone}
+                      onChange={e => setEditingTenant({ ...et, phone: e.target.value })}
+                      placeholder="No telepon"
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    <div className="grid grid-cols-2 gap-2">
+                      <input type="date" value={et.leaseStart}
+                        onChange={e => setEditingTenant({ ...et, leaseStart: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                      <input type="date" value={et.leaseEnd}
+                        onChange={e => setEditingTenant({ ...et, leaseEnd: e.target.value })}
+                        className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={handleSaveTenant} className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-white">Simpan Tenant</button>
+                      <button onClick={() => setEditingTenant(null)} className="flex-1 rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground">Batal</button>
+                    </div>
+                  </div>
+                  );
+                })()}
               </div>
             );
           })}
