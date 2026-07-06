@@ -50,6 +50,7 @@ export function useCreateRoom() {
       type: "bulanan" | "harian";
       monthly_price?: number;
       daily_price?: number;
+      notes?: string;
     }) => {
       // Get property_id - use first available if super admin
       let propertyId = profile?.propertyId;
@@ -71,6 +72,7 @@ export function useCreateRoom() {
           type: values.type,
           monthly_price: values.monthly_price,
           daily_price: values.daily_price,
+          notes: values.notes || null,
           property_id: propertyId,
           created_by: profile?.id,
           status: "tersedia",

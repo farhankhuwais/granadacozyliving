@@ -5,6 +5,7 @@ import {
   useCreateTenant,
   useUpdateTenant,
   useDeleteTenant,
+  useMarkTenantPaid,
 } from "@/hooks/use-tenants";
 import MobileLayout from "@/components/MobileLayout";
 import { useAuth } from "@/hooks/use-auth";
@@ -17,6 +18,7 @@ import {
   Trash2,
   DoorOpen,
   Pencil,
+  DollarSign,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -69,6 +71,7 @@ export default function KamarPage() {
   const createTenant = useCreateTenant();
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
+  const markPaid = useMarkTenantPaid();
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
   const { profile } = useAuth();
@@ -77,8 +80,10 @@ export default function KamarPage() {
   const [showForm, setShowForm] = useState(false);
   const [showRoomForm, setShowRoomForm] = useState(false);
   const [editingTenant, setEditingTenant] = useState<{ id: string; name: string; phone: string; leaseStart: string; leaseEnd: string } | null>(null);
-  const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; name: string; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null } | null>(null);
-  const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
+  const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; name: string; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null; notes: string | null } | null>(null);
+  const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number; notes: string }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
+  const [filter, setFilter] = useState("semua");
+  const [search, setSearch] = useState("");
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
   const [formError, setFormError] = useState("");
@@ -114,13 +119,19 @@ export default function KamarPage() {
     try {
       await createTenant.mutateAsync({
         room_id: selectedRoomId,
-        ...form,
+        name: form.name,
+        phone: form.phone,
+        lease_start: form.leaseStart,
+        lease_end: form.leaseEnd,
+        id_type: form.idType,
+        id_number: form.idNumber,
         status: "active",
         email: "",
       });
       resetForm();
-    } catch {
-      setFormError("Gagal menyimpan data penyewa");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setFormError(`Gagal: ${msg}`);
     }
   }
 
@@ -155,8 +166,37 @@ export default function KamarPage() {
       } as { id: string; [key: string]: unknown });
       setEditingTenant(null);
       alert("Data penyewa diupdate");
-    } catch (e) {
-      alert(`Gagal: ${e instanceof Error ? e.message : "error"}`);
+    } catch (e: unknown) {
+      alert(`Gagal update tenant: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  }
+
+  async function handleMarkPaid(tenant: NonNullable<typeof rooms>[number]["tenants"][number], room: NonNullable<typeof rooms>[number]) {
+    const fullAmount = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000) * 22;
+    const category = room.type === "bulanan" ? "monthly_rent" : "daily_rent";
+    const label = room.name || `Kamar ${room.room_number}`;
+
+    const input = prompt(`Jumlah pembayaran untuk ${tenant.name} (Rp):`, fullAmount.toLocaleString("id-ID"));
+    if (!input) return;
+
+    const amount = parseInt(input.replace(/\D/g, "")) || 0;
+    if (amount <= 0) { alert("Jumlah tidak valid"); return; }
+
+    const isPartial = amount < fullAmount;
+    if (isPartial && !confirm(`Bayar sebagian Rp ${amount.toLocaleString("id-ID")}?`)) return;
+
+    try {
+      await markPaid.mutateAsync({
+        tenantId: tenant.id,
+        roomId: room.id,
+        amount,
+        category: category as "monthly_rent" | "daily_rent",
+        description: `${isPartial ? "Pembayaran sebagian" : category === "monthly_rent" ? "Sewa bulanan" : "Sewa harian"} - ${label} - ${tenant.name}`,
+        isPartial,
+      });
+      alert(isPartial ? "Pembayaran sebagian tercatat" : "Pembayaran lunas tercatat");
+    } catch (e: unknown) {
+      alert(`Gagal: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 
@@ -168,11 +208,12 @@ export default function KamarPage() {
       await createRoom.mutateAsync({
         room_number: nextNum,
         name: roomForm.name.trim(),
+        notes: roomForm.notes || undefined,
         type: roomForm.type,
         ...(roomForm.type === "bulanan" ? { monthly_price: roomForm.monthly_price } : { daily_price: roomForm.daily_price }),
       });
       setShowRoomForm(false);
-      setRoomForm({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
+      setRoomForm({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
     } catch (e) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
@@ -211,18 +252,19 @@ export default function KamarPage() {
       type: room.type,
       monthly_price: room.monthly_price,
       daily_price: room.daily_price,
+      notes: room.notes || null,
     });
   }
 
   async function handleSaveRoom() {
     if (!editingRoom) return;
     try {
-      console.log("Saving room:", editingRoom);
       await updateRoom.mutateAsync({
         id: editingRoom.id,
         type: editingRoom.type,
         monthly_price: editingRoom.type === "bulanan" ? editingRoom.monthly_price : null,
         daily_price: editingRoom.type === "harian" ? editingRoom.daily_price : null,
+        notes: editingRoom.notes || null,
       });
       setEditingRoom(null);
       alert("Kamar berhasil diupdate");
@@ -272,16 +314,32 @@ export default function KamarPage() {
         </div>
 
         <div className="my-4 flex gap-3">
-          <div className="flex-1 rounded-2xl bg-success/5 border border-success/10 p-3 text-center">
+          <div className="flex-1 rounded-2xl bg-success/5 border border-success/10 p-3 text-center cursor-pointer" onClick={() => setFilter("terisi")}>
             <p className="text-2xl font-bold text-success">{terisi}</p>
             <p className="text-[11px] text-muted-foreground">Terisi</p>
           </div>
-          <div className="flex-1 rounded-2xl bg-muted border border-border p-3 text-center">
+          <div className="flex-1 rounded-2xl bg-muted border border-border p-3 text-center cursor-pointer" onClick={() => setFilter("tersedia")}>
             <p className="text-2xl font-bold text-muted-foreground">
               {total - terisi}
             </p>
             <p className="text-[11px] text-muted-foreground">Tersedia</p>
           </div>
+        </div>
+
+        {/* Filter & Search */}
+        <div className="mb-4 flex gap-2 items-center">
+          <div className="flex gap-1">
+            {["semua", "tersedia", "terisi"].map(f => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`rounded-lg px-3 py-1.5 text-[11px] font-medium transition-colors ${filter === f ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+                {f === "semua" ? "Semua" : f === "tersedia" ? "Kosong" : "Terisi"}
+              </button>
+            ))}
+          </div>
+          <input type="text" value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Cari kamar..."
+            className="flex-1 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
         </div>
 
         {/* Tenant Form */}
@@ -302,7 +360,7 @@ export default function KamarPage() {
                   ?.filter((r) => r.status === "tersedia")
                   .map((r) => (
                     <option key={r.id} value={r.id}>
-                      Kamar {r.room_number} ({r.type})
+                      {r.name || `Kamar ${r.room_number}`} — {r.type === "bulanan" ? `Rp ${(r.monthly_price || 1500000).toLocaleString("id-ID")}/bln` : `Rp ${(r.daily_price || 200000).toLocaleString("id-ID")}/malam`}
                     </option>
                   ))}
               </select>
@@ -422,6 +480,12 @@ export default function KamarPage() {
                 placeholder={roomForm.type === "bulanan" ? "Harga bulanan" : "Harga per malam"}
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
 
+              <textarea value={roomForm.notes || ""}
+                onChange={e => setRoomForm({ ...roomForm, notes: e.target.value })}
+                placeholder="Catatan (opsional)"
+                rows={2}
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none resize-none" />
+
               <button onClick={handleAddRoom} disabled={createRoom.isPending}
                 className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
                 {createRoom.isPending ? "Menambah..." : "Tambah Kamar"}
@@ -432,7 +496,19 @@ export default function KamarPage() {
 
         {/* Room List */}
         <div className="space-y-3">
-          {rooms?.map((room) => {
+          {rooms
+            ?.filter(r => {
+              if (filter === "tersedia") return r.status === "tersedia";
+              if (filter === "terisi") return r.status === "terisi";
+              return true;
+            })
+            .filter(r => {
+              if (!search.trim()) return true;
+              const q = search.toLowerCase();
+              return (r.name || `Kamar ${r.room_number}`).toLowerCase().includes(q)
+                || String(r.room_number).includes(q);
+            })
+            .map((room) => {
             const cfg =
               room.status === "terisi"
                 ? statusConfig[room.type]
@@ -467,8 +543,13 @@ export default function KamarPage() {
                       {tenant && ` - ${tenant.name}`}
                     </p>
                     {room.creator && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-0.5">
+                      <p className="text-[10px] text-muted-foreground/60 mt-px">
                         Dibuat oleh: {room.creator.full_name}
+                      </p>
+                    )}
+                    {room.notes && (
+                      <p className="text-[10px] text-muted-foreground/60 mt-px italic">
+                        {room.notes}
                       </p>
                     )}
                   </div>
@@ -478,6 +559,21 @@ export default function KamarPage() {
                     <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
                     {cfg.label}
                   </span>
+                  {tenant && tenant.payment_status === "unpaid" && (
+                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-1 text-[10px] font-semibold text-destructive">
+                      Belum Bayar
+                    </span>
+                  )}
+                  {tenant && tenant.payment_status === "paid" && (
+                    <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-1 text-[10px] font-semibold text-success">
+                      Lunas
+                    </span>
+                  )}
+                  {tenant && tenant.payment_status === "partial" && (
+                    <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-1 text-[10px] font-semibold text-warning">
+                      Partial
+                    </span>
+                  )}
                   {isHarian &&
                     (isExpanded ? (
                       <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -486,8 +582,8 @@ export default function KamarPage() {
                     ))}
                 </div>
 
-                {/* Room actions — always show for super admin */}
-                {profile?.role === "super_admin" && (
+                {/* Room actions — for empty rooms only */}
+                {profile?.role === "super_admin" && room.status !== "terisi" && (
                   <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
                     <button onClick={() => startEditRoom(room)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit kamar">
                       <Pencil className="h-3.5 w-3.5" />
@@ -501,6 +597,18 @@ export default function KamarPage() {
                 {/* Tenant actions — only for occupied rooms */}
                 {room.status === "terisi" && tenant && canManage && (
                   <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
+                    {tenant.payment_status === "unpaid" && (
+                      <button onClick={() => handleMarkPaid(tenant, room)}
+                        className="text-success hover:text-success/80 transition-colors" title="Catat pembayaran">
+                        <DollarSign className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                    {tenant.payment_status === "partial" && (
+                      <button onClick={() => handleMarkPaid(tenant, room)}
+                        className="text-warning hover:text-warning/80 transition-colors" title="Lanjutkan pembayaran">
+                        <DollarSign className="h-3.5 w-3.5" />
+                      </button>
+                    )}
                     <button onClick={() => startEditTenant(tenant)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit penyewa">
                       <Pencil className="h-3.5 w-3.5" />
                     </button>
@@ -534,6 +642,11 @@ export default function KamarPage() {
                         setEditingRoom({ ...er, ...(er.type === "bulanan" ? { monthly_price: v } : { daily_price: v }) });
                       }}
                       className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    <textarea value={er.notes || ""}
+                      onChange={e => setEditingRoom({ ...er, notes: e.target.value })}
+                      placeholder="Catatan"
+                      rows={2}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground resize-none" />
                     <div className="flex gap-2">
                       <button onClick={handleSaveRoom} className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-white">Simpan</button>
                       <button onClick={() => setEditingRoom(null)} className="flex-1 rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground">Batal</button>

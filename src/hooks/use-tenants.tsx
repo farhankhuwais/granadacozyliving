@@ -107,3 +107,59 @@ export function useDeleteTenant() {
     },
   });
 }
+
+export function useMarkTenantPaid() {
+  const queryClient = useQueryClient();
+  const { profile } = useAuth();
+  return useMutation({
+    mutationFn: async ({
+      tenantId,
+      roomId,
+      amount,
+      category,
+      description,
+      isPartial,
+    }: {
+      tenantId: string;
+      roomId: string;
+      amount: number;
+      category: "monthly_rent" | "daily_rent";
+      description: string;
+      isPartial: boolean;
+    }) => {
+      const { data: room } = await supabase
+        .from("rooms").select("property_id").eq("id", roomId).single();
+      if (!room?.property_id) throw new Error("Room has no property");
+
+      const { error: err1 } = await supabase
+        .from("tenants")
+        .update({
+          payment_status: isPartial ? "partial" : "paid",
+          last_payment_date: new Date().toISOString().split("T")[0],
+          paid_amount: amount,
+        })
+        .eq("id", tenantId);
+      if (err1) throw err1;
+
+      const { error: err2 } = await supabase
+        .from("transactions")
+        .insert({
+          property_id: room.property_id,
+          room_id: roomId,
+          type: "income",
+          category,
+          amount,
+          description,
+          transaction_date: new Date().toISOString().split("T")[0],
+          created_by: profile?.id,
+        });
+      if (err2) throw err2;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["rooms"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
