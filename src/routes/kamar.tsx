@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRooms, useCreateRoom, useUpdateRoom } from "@/hooks/use-rooms";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -23,7 +23,6 @@ import {
   DollarSign,
   User,
   LogOut,
-  Image,
   Camera,
 } from "lucide-react";
 
@@ -93,7 +92,6 @@ export default function KamarPage() {
   const [filter, setFilter] = useState("semua");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"rooms" | "history">("rooms");
-  const [showPhotoRoom, setShowPhotoRoom] = useState<string | null>(null);
   const [roomPhotos, setRoomPhotos] = useState<Record<string, { id: string; photo_url: string; caption: string }[]>>({});
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -107,6 +105,17 @@ export default function KamarPage() {
   const terisi =
     rooms?.filter((r) => r.status === "terisi").length || 0;
   const total = rooms?.length || 0;
+
+  // Load first photo per room
+  useEffect(() => {
+    if (!rooms?.length) return;
+    rooms.forEach((room) => {
+      if (roomPhotos[room.id] !== undefined) return;
+      getRoomPhotos(room.id).then(photos => {
+        setRoomPhotos(prev => ({ ...prev, [room.id]: photos }));
+      }).catch(() => {});
+    });
+  }, [rooms?.length]);
 
   function resetForm() {
     setForm(emptyForm);
@@ -219,18 +228,6 @@ export default function KamarPage() {
       const msg = typeof e === "object" && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
       alert(`Gagal: ${msg}`);
     }
-  }
-
-  async function toggleRoomPhotos(roomId: string) {
-    if (showPhotoRoom === roomId) {
-      setShowPhotoRoom(null);
-      return;
-    }
-    setShowPhotoRoom(roomId);
-    try {
-      const photos = await getRoomPhotos(roomId);
-      setRoomPhotos(prev => ({ ...prev, [roomId]: photos }));
-    } catch { console.error("Gagal load foto"); }
   }
 
   async function handleUploadPhoto(roomId: string, file: File) {
@@ -578,7 +575,7 @@ export default function KamarPage() {
                 className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
               >
                 <div
-                  className={`flex items-center gap-4 p-4 ${
+                  className={`flex items-center gap-3 p-4 ${
                     isHarian ? "cursor-pointer" : ""
                   }`}
                   onClick={() =>
@@ -586,8 +583,14 @@ export default function KamarPage() {
                     setExpandedRoom(isExpanded ? null : room.roomNumber)
                   }
                 >
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/5">
-                    <BedDouble className="h-5 w-5 text-primary" />
+                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-primary/5">
+                    {roomPhotos[room.id]?.[0] ? (
+                      <img src={roomPhotos[room.id][0].photo_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <BedDouble className="h-5 w-5 text-primary" />
+                      </div>
+                    )}
                   </div>
                     <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">
@@ -660,36 +663,18 @@ export default function KamarPage() {
                   </div>
                 )}
 
-                {/* Foto Kamar */}
-                <div className="border-t border-border px-4 py-2">
-                  <button onClick={() => toggleRoomPhotos(room.id)} className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground">
-                    <Image className="h-3.5 w-3.5" />
-                    {showPhotoRoom === room.id ? "Tutup Foto" : "Lihat Foto"}
-                  </button>
-                </div>
-
-                {showPhotoRoom === room.id && (
-                  <div className="border-t border-border px-4 py-3 space-y-2">
-                    <div className="flex gap-2 overflow-x-auto pb-1">
-                      {(roomPhotos[room.id] || []).map(photo => (
-                        <img key={photo.id} src={photo.photo_url} alt={photo.caption || "Foto kamar"}
-                          className="h-24 w-32 shrink-0 rounded-lg object-cover border border-border" />
-                      ))}
-                      {(roomPhotos[room.id] || []).length === 0 && (
-                        <p className="text-[11px] text-muted-foreground">Belum ada foto</p>
-                      )}
-                    </div>
-                    {canManage && (
-                      <label className="flex items-center gap-1.5 text-[11px] text-primary cursor-pointer">
-                        <Camera className="h-3.5 w-3.5" />
-                        {uploadingPhoto ? "Mengupload..." : "Upload Foto"}
-                        <input type="file" accept="image/*" className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) { await handleUploadPhoto(room.id, file); e.target.value = ""; }
-                          }} />
-                      </label>
-                    )}
+                {/* Foto Kamar — button + upload, no gallery section */}
+                {canManage && (
+                  <div className="border-t border-border px-4 py-2">
+                    <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground cursor-pointer">
+                      <Camera className="h-3.5 w-3.5" />
+                      {uploadingPhoto ? "Mengupload..." : "Foto"}
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          if (file) { await handleUploadPhoto(room.id, file); e.target.value = ""; }
+                        }} />
+                    </label>
                   </div>
                 )}
 
