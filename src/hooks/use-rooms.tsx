@@ -46,6 +46,7 @@ export function useCreateRoom() {
   return useMutation({
     mutationFn: async (values: {
       room_number: number;
+      name: string;
       type: "bulanan" | "harian";
       monthly_price?: number;
       daily_price?: number;

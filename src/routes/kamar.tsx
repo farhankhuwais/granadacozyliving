@@ -73,8 +73,8 @@ export default function KamarPage() {
   const [expandedRoom, setExpandedRoom] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showRoomForm, setShowRoomForm] = useState(false);
-  const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null } | null>(null);
-  const [roomForm, setRoomForm] = useState<{ room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
+  const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; name: string; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null } | null>(null);
+  const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
   const [formError, setFormError] = useState("");
@@ -130,17 +130,19 @@ export default function KamarPage() {
   }
 
   async function handleAddRoom() {
-    if (!roomForm.room_number || roomForm.room_number <= 0) { alert("Nomor kamar harus diisi"); return; }
-    const exists = rooms?.find(r => r.room_number === roomForm.room_number);
-    if (exists) { alert("Nomor kamar sudah ada"); return; }
+    if (!roomForm.name.trim()) { alert("Nama kamar harus diisi"); return; }
+    const maxNum = rooms?.reduce((max, r) => Math.max(max, r.room_number), 0) || 0;
+    const nextNum = maxNum + 1;
     try {
       await createRoom.mutateAsync({
-        room_number: roomForm.room_number,
+        room_number: nextNum,
+        name: roomForm.name.trim(),
         type: roomForm.type,
         ...(roomForm.type === "bulanan" ? { monthly_price: roomForm.monthly_price } : { daily_price: roomForm.daily_price }),
       });
       setShowRoomForm(false);
-    } catch { alert("Gagal menambah kamar"); }
+      setRoomForm({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
+    } catch (e) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
   async function handleDeleteRoom(roomId: string, roomNumber: number) {
@@ -161,6 +163,7 @@ export default function KamarPage() {
     setEditingRoom({
       id: room.id,
       room_number: room.room_number,
+      name: room.name || "",
       type: room.type,
       monthly_price: room.monthly_price,
       daily_price: room.daily_price,
@@ -348,9 +351,10 @@ export default function KamarPage() {
           <div className="mb-4 rounded-2xl border border-border bg-card p-4 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold text-foreground">Tambah Kamar Baru</h3>
             <div className="space-y-3">
-              <input type="number" value={roomForm.room_number || ""}
-                onChange={e => setRoomForm({ ...roomForm, room_number: parseInt(e.target.value) || 0 })}
-                placeholder="Nomor kamar"
+              <p className="text-xs text-muted-foreground">Nomor kamar akan dibuat otomatis (unique).</p>
+              <input type="text" value={roomForm.name}
+                onChange={e => setRoomForm({ ...roomForm, name: e.target.value })}
+                placeholder="Nama kamar (contoh: Melati, Mawar, K1, dll)"
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
 
               <div className="flex gap-2">
@@ -412,10 +416,10 @@ export default function KamarPage() {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm font-semibold text-foreground">
-                      Kamar {room.room_number}
+                      {room.name || `Kamar ${room.room_number}`}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
-                      Unit lantai {Math.ceil(room.room_number / 2)}
+                      {room.name ? `Unit #${room.room_number}` : `Unit lantai ${Math.ceil(room.room_number / 2)}`}
                       {tenant && ` - ${tenant.name}`}
                     </p>
                   </div>
