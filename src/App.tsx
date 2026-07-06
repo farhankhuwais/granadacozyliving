@@ -9,6 +9,7 @@ import KamarPage from "@/routes/kamar";
 import KeuanganPage from "@/routes/keuangan";
 import PermintaanPage from "@/routes/permintaan";
 import ProfilPage from "@/routes/profil";
+import SuperAdminDashboardPage from "@/routes/super-admin";
 import { AppWithRouter } from "@/components/MobileLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -31,7 +32,11 @@ function DashboardRouter() {
 
   return (
     <Routes>
-      <Route path="/" element={isManager ? <PengelolaPage /> : <InvestorDashboardPage />} />
+      <Route path="/" element={
+        profile.role === "super_admin"
+          ? <SuperAdminDashboardPage />
+          : isManager ? <PengelolaPage /> : <InvestorDashboardPage />
+      } />
       <Route path="/kamar" element={<ProtectedRoute><KamarPage /></ProtectedRoute>} />
       <Route path="/keuangan" element={
         <ProtectedRoute roles={["super_admin", "investor_only", "investor_manager"]}>

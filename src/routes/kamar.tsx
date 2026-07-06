@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRooms } from "@/hooks/use-rooms";
+import { useRooms, useCreateRoom, useDeleteRoom } from "@/hooks/use-rooms";
 import {
   useCreateTenant,
   useDeleteTenant,
@@ -13,6 +13,7 @@ import {
   Plus,
   X,
   Trash2,
+  DoorOpen,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -64,10 +65,14 @@ export default function KamarPage() {
   const { data: rooms, isLoading } = useRooms();
   const createTenant = useCreateTenant();
   const deleteTenant = useDeleteTenant();
+  const createRoom = useCreateRoom();
+  const deleteRoom = useDeleteRoom();
   const { profile } = useAuth();
 
   const [expandedRoom, setExpandedRoom] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showRoomForm, setShowRoomForm] = useState(false);
+  const [roomForm, setRoomForm] = useState<{ room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number }>({ room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000 });
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
   const [formError, setFormError] = useState("");
@@ -122,6 +127,26 @@ export default function KamarPage() {
     }
   }
 
+  async function handleAddRoom() {
+    if (!roomForm.room_number) { alert("Nomor kamar harus diisi"); return; }
+    const exists = rooms?.find(r => r.room_number === roomForm.room_number);
+    if (exists) { alert("Nomor kamar sudah ada"); return; }
+    try {
+      await createRoom.mutateAsync({
+        room_number: roomForm.room_number,
+        type: roomForm.type,
+        ...(roomForm.type === "bulanan" ? { monthly_price: roomForm.monthly_price } : { daily_price: roomForm.daily_price }),
+      });
+      setShowRoomForm(false);
+    } catch { alert("Gagal menambah kamar"); }
+  }
+
+  async function handleDeleteRoom(roomId: string, roomNumber: number) {
+    if (!confirm(`Yakin hapus Kamar ${roomNumber}? Data terkait akan terhapus.`)) return;
+    try { await deleteRoom.mutateAsync(roomId); }
+    catch { alert("Gagal menghapus kamar"); }
+  }
+
   if (isLoading) {
     return (
       <MobileLayout>
@@ -141,13 +166,24 @@ export default function KamarPage() {
             <p className="text-sm text-muted-foreground">Ketersediaan unit saat ini</p>
           </div>
           {canManage && (
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
-            >
-              {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
-              {showForm ? "Tutup" : "Tambah"}
-            </button>
+            <div className="flex gap-2">
+              {profile?.role === "super_admin" && (
+                <button
+                  onClick={() => setShowRoomForm(!showRoomForm)}
+                  className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-white px-3.5 py-2 text-xs font-semibold text-primary"
+                >
+                  <DoorOpen className="h-3.5 w-3.5" />
+                  {showRoomForm ? "Tutup" : "Kamar"}
+                </button>
+              )}
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
+              >
+                {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
+                {showForm ? "Tutup" : "Tenant"}
+              </button>
+            </div>
           )}
         </div>
 
@@ -270,6 +306,45 @@ export default function KamarPage() {
           </div>
         )}
 
+        {/* Room Add Form (Super Admin only) */}
+        {showRoomForm && profile?.role === "super_admin" && (
+          <div className="mb-4 rounded-2xl border border-border bg-card p-4 shadow-sm">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">Tambah Kamar Baru</h3>
+            <div className="space-y-3">
+              <input type="number" value={roomForm.room_number || ""}
+                onChange={e => setRoomForm({ ...roomForm, room_number: parseInt(e.target.value) || 0 })}
+                placeholder="Nomor kamar"
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+
+              <div className="flex gap-2">
+                <button type="button"
+                  onClick={() => setRoomForm({ ...roomForm, type: "bulanan", monthly_price: 1500000 })}
+                  className={`flex-1 rounded-xl py-2 text-xs font-semibold ${roomForm.type === "bulanan" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                  Bulanan
+                </button>
+                <button type="button"
+                  onClick={() => setRoomForm({ ...roomForm, type: "harian", daily_price: 200000 })}
+                  className={`flex-1 rounded-xl py-2 text-xs font-semibold ${roomForm.type === "harian" ? "bg-primary text-white" : "bg-muted text-muted-foreground"}`}>
+                  Harian
+                </button>
+              </div>
+
+              <input type="number" value={roomForm.type === "bulanan" ? roomForm.monthly_price : roomForm.daily_price}
+                onChange={e => {
+                  const val = parseInt(e.target.value) || 0;
+                  setRoomForm(roomForm.type === "bulanan" ? { ...roomForm, monthly_price: val } : { ...roomForm, daily_price: val });
+                }}
+                placeholder={roomForm.type === "bulanan" ? "Harga bulanan" : "Harga per malam"}
+                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+
+              <button onClick={handleAddRoom} disabled={createRoom.isPending}
+                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+                {createRoom.isPending ? "Menambah..." : "Tambah Kamar"}
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Room List */}
         <div className="space-y-3">
           {rooms?.map((room) => {
@@ -323,7 +398,18 @@ export default function KamarPage() {
 
                 {/* Tenant actions */}
                 {room.status === "terisi" && tenant && canManage && (
-                  <div className="border-t border-border px-4 py-2 flex justify-end">
+                  <div className="border-t border-border px-4 py-2 flex justify-between items-center">
+                    <div>
+                      {profile?.role === "super_admin" && (
+                        <button
+                          onClick={() => handleDeleteRoom(room.id, room.room_number)}
+                          className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Hapus Kamar
+                        </button>
+                      )}
+                    </div>
                     <button
                       onClick={() => handleEndLease(tenant.id, room.id)}
                       className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300"
