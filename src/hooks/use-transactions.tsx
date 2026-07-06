@@ -34,7 +34,7 @@ export function useTransactions(filters?: {
       const { data } = await query;
       return data || [];
     },
-    enabled: !!profile?.propertyId,
+    enabled: !!profile?.propertyId || isSuperAdmin,
   });
 }
 
@@ -95,6 +95,6 @@ export function useTransactionBreakdown(dateStart?: string, dateEnd?: string) {
 
       return { income, expense, net: income - expense, byCategory, rows };
     },
-    enabled: !!profile?.propertyId,
+    enabled: !!profile?.propertyId || isSuperAdmin,
   });
 }

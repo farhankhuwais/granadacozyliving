@@ -371,7 +371,7 @@ export default function KamarPage() {
             </button>
           </div>
         </div>
-          {canManage && (
+          {view === "rooms" && canManage && (
             <div className="flex gap-2">
               {profile?.role === "super_admin" && (
                 <button
@@ -853,16 +853,15 @@ export default function KamarPage() {
       {/* History view */}
       {view === "history" && (
         <div className="pb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-foreground">Riwayat Penyewa</h2>
-            {historyTenants.length > 0 && canManage && (
-              <button onClick={handleDeleteAllHistory} className="text-xs text-destructive hover:text-destructive/80">Hapus Semua</button>
-            )}
-          </div>
           {historyTenants.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">Belum ada riwayat penyewa</p>
           ) : (
             <div className="space-y-3">
+              <div className="flex justify-end">
+                {canManage && (
+                  <button onClick={handleDeleteAllHistory} className="text-xs text-destructive hover:text-destructive/80">Hapus Semua</button>
+                )}
+              </div>
               {historyTenants.map((t) => (
                 <div key={t.id} className="rounded-xl border border-border bg-card px-3.5 py-2.5">
                   <div className="flex items-start gap-2.5">
