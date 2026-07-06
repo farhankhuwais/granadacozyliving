@@ -7,6 +7,8 @@ import {
   useDeleteTenant,
   useMarkTenantPaid,
   useTenants,
+  useDeleteHistoryTenant,
+  useDeleteAllHistory,
 } from "@/hooks/use-tenants";
 import MobileLayout from "@/components/MobileLayout";
 import { useAuth } from "@/hooks/use-auth";
@@ -78,6 +80,8 @@ export default function KamarPage() {
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
   const markPaid = useMarkTenantPaid();
+  const deleteHistory = useDeleteHistoryTenant();
+  const deleteAllHistory = useDeleteAllHistory();
   const createRoom = useCreateRoom();
   const updateRoom = useUpdateRoom();
   const { profile } = useAuth();
@@ -87,12 +91,13 @@ export default function KamarPage() {
   const [showRoomForm, setShowRoomForm] = useState(false);
   const [editingTenant, setEditingTenant] = useState<{ id: string; name: string; phone: string; leaseStart: string; leaseEnd: string } | null>(null);
   const [editingRoom, setEditingRoom] = useState<{ id: string; room_number: number; name: string; type: "bulanan" | "harian"; monthly_price: number | null; daily_price: number | null; notes: string | null } | null>(null);
-  const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number; notes: string }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
+  const [roomForm, setRoomForm] = useState<{ name: string; room_number: number; type: "bulanan" | "harian"; monthly_price: number; daily_price: number; notes: string; photoFile?: File }>({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
   const [filter, setFilter] = useState("semua");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"rooms" | "history">("rooms");
   const [roomPhotos, setRoomPhotos] = useState<Record<string, { id: string; photo_url: string; caption: string }[]>>({});
   const [photoMenu, setPhotoMenu] = useState<string | null>(null);
+  const [viewerUrl, setViewerUrl] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
@@ -243,20 +248,40 @@ export default function KamarPage() {
     setUploadingPhoto(false);
   }
 
+  async function handleDeleteHistoryTenant(id: string) {
+    if (!confirm("Hapus riwayat ini? Transaksi terkait juga akan dihapus.")) return;
+    try { await deleteHistory.mutateAsync(id); }
+    catch { alert("Gagal hapus riwayat"); }
+  }
+
+  async function handleDeleteAllHistory() {
+    if (!confirm(`Hapus semua ${historyTenants.length} riwayat? Transaksi terkait juga akan dihapus.`)) return;
+    try { await deleteAllHistory.mutateAsync(); }
+    catch { alert("Gagal hapus semua"); }
+  }
+
   async function handleAddRoom() {
     if (!roomForm.name.trim()) { alert("Nama kamar harus diisi"); return; }
     const maxNum = rooms?.reduce((max, r) => Math.max(max, r.room_number), 0) || 0;
     const nextNum = maxNum + 1;
     try {
-      await createRoom.mutateAsync({
+      const result = await createRoom.mutateAsync({
         room_number: nextNum,
         name: roomForm.name.trim(),
         notes: roomForm.notes || undefined,
         type: roomForm.type,
         ...(roomForm.type === "bulanan" ? { monthly_price: roomForm.monthly_price } : { daily_price: roomForm.daily_price }),
       });
+      // Upload photo if selected
+      if (roomForm.photoFile && result?.id && profile?.id) {
+        await uploadRoomPhoto(result.id, roomForm.photoFile, "", "interior", profile.id);
+      }
       setShowRoomForm(false);
-      setRoomForm({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "" });
+      setRoomForm({ name: "", room_number: 0, type: "bulanan", monthly_price: 1500000, daily_price: 200000, notes: "", photoFile: undefined });
+      if (roomForm.photoFile && result?.id) {
+        const photos = await getRoomPhotos(result.id);
+        setRoomPhotos(prev => ({ ...prev, [result.id]: photos }));
+      }
     } catch (e) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
@@ -538,6 +563,18 @@ export default function KamarPage() {
                 rows={2}
                 className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none resize-none" />
 
+              <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer hover:text-foreground">
+                <span className="text-lg">📸</span> {roomForm.photoFile ? roomForm.photoFile.name : "Foto kamar (opsional)"}
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) setRoomForm({ ...roomForm, photoFile: file });
+                  }} />
+                {roomForm.photoFile && (
+                  <button type="button" onClick={() => setRoomForm({ ...roomForm, photoFile: undefined })} className="text-xs text-destructive">✕</button>
+                )}
+              </label>
+
               <button onClick={handleAddRoom} disabled={createRoom.isPending}
                 className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
                 {createRoom.isPending ? "Menambah..." : "Tambah Kamar"}
@@ -583,26 +620,27 @@ export default function KamarPage() {
                     setExpandedRoom(isExpanded ? null : room.roomNumber)
                   }
                 >
-                  <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl bg-primary/5 cursor-pointer"
-                    onClick={() => setPhotoMenu(photoMenu === room.id ? null : room.id)}>
-                    {roomPhotos[room.id]?.[0] ? (
-                      <img src={roomPhotos[room.id][0].photo_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <BedDouble className="h-5 w-5 text-primary" />
-                      </div>
-                    )}
+                  <div className="relative shrink-0">
+                    <div className="h-11 w-11 overflow-hidden rounded-xl bg-primary/5 cursor-pointer"
+                      onClick={() => setPhotoMenu(photoMenu === room.id ? null : room.id)}>
+                      {roomPhotos[room.id]?.[0] ? (
+                        <img src={roomPhotos[room.id][0].photo_url} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <BedDouble className="h-5 w-5 text-primary" />
+                        </div>
+                      )}
+                    </div>
                     {/* Photo menu dropdown */}
                     {photoMenu === room.id && (
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setPhotoMenu(null)} />
                         <div className="absolute left-0 top-full z-50 mt-1 w-36 rounded-xl border border-border bg-white shadow-lg overflow-hidden">
                           {roomPhotos[room.id]?.[0] && (
-                            <a href={roomPhotos[room.id][0].photo_url} target="_blank" rel="noopener noreferrer"
-                              onClick={() => setPhotoMenu(null)}
+                            <button onClick={() => { setViewerUrl(roomPhotos[room.id][0].photo_url); setPhotoMenu(null); }}
                               className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors">
                               👁️ Lihat Gambar
-                            </a>
+                            </button>
                           )}
                           {canManage && (
                             <label className="flex w-full items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors cursor-pointer">
@@ -638,11 +676,7 @@ export default function KamarPage() {
                         {tenant.id_number && <p className="text-[10px] text-muted-foreground">{tenant.id_type || "ID"}: {tenant.id_number}</p>}
                       </div>
                     )}
-                    {room.notes && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-px italic">
-                        {room.notes}
-                      </p>
-                    )}
+                    {!room.creator && !tenant && (<div />)}
                   </div>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold ${cfg.badge}`}
@@ -818,7 +852,12 @@ export default function KamarPage() {
       {/* History view */}
       {view === "history" && (
         <div className="pb-6">
-          <h2 className="mb-4 text-sm font-semibold text-foreground">Riwayat Penyewa</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-foreground">Riwayat Penyewa</h2>
+            {historyTenants.length > 0 && canManage && (
+              <button onClick={handleDeleteAllHistory} className="text-xs text-destructive hover:text-destructive/80">Hapus Semua</button>
+            )}
+          </div>
           {historyTenants.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">Belum ada riwayat penyewa</p>
           ) : (
@@ -832,7 +871,14 @@ export default function KamarPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-sm font-semibold text-foreground truncate">{t.name}</p>
-                        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">Selesai</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {canManage && (
+                            <button onClick={() => handleDeleteHistoryTenant(t.id)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                          <span className="rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">Selesai</span>
+                        </div>
                       </div>
                       {t.rooms && (
                         <p className="text-[11px] text-muted-foreground truncate">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
@@ -857,6 +903,16 @@ export default function KamarPage() {
         </div>
       )}
       </div>
+
+      {/* Photo viewer modal */}
+      {viewerUrl && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80" onClick={() => setViewerUrl(null)}>
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setViewerUrl(null)} className="absolute -top-10 right-0 text-white text-sm hover:text-gray-300">Tutup ✕</button>
+            <img src={viewerUrl} alt="Foto kamar" className="max-h-[85vh] max-w-[85vw] rounded-xl object-contain" />
+          </div>
+        </div>
+      )}
     </MobileLayout>
   );
 }

@@ -16,7 +16,7 @@ export function useTransactions(filters?: {
     queryFn: async () => {
       let query = supabase
         .from("transactions")
-        .select("*, creator:profiles!created_by(full_name)")
+        .select("*")
         .order("transaction_date", { ascending: false });
 
       if (!isSuperAdmin && profile?.propertyId) {

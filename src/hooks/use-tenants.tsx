@@ -163,3 +163,39 @@ export function useMarkTenantPaid() {
     },
   });
 }
+
+export function useDeleteHistoryTenant() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (tenantId: string) => {
+      const { data: tenant } = await supabase.from("tenants").select("room_id").eq("id", tenantId).single();
+      if (tenant?.room_id) {
+        await supabase.from("transactions").delete().eq("room_id", tenant.room_id);
+      }
+      await supabase.from("tenants").delete().eq("id", tenantId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useDeleteAllHistory() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { data: ended } = await supabase.from("tenants").select("id, room_id").eq("status", "ended");
+      if (!ended?.length) return;
+      const roomIds = [...new Set(ended.map(t => t.room_id))];
+      await supabase.from("transactions").delete().in("room_id", roomIds);
+      await supabase.from("tenants").delete().in("id", ended.map(t => t.id));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
