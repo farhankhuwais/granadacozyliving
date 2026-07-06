@@ -4,16 +4,35 @@ import { useAuth } from "@/hooks/use-auth";
 
 export function useDashboard() {
   const { profile } = useAuth();
-  const propertyId = profile?.propertyId;
+  const propertyId = profile?.propertyId || "all";
 
   return useQuery({
     queryKey: ["dashboard", propertyId],
     queryFn: async () => {
+      // Get first property_id if super admin
+      let targetPropertyId = propertyId;
+      if (targetPropertyId === "all") {
+        const { data: firstProp } = await supabase
+          .from("properties")
+          .select("id")
+          .limit(1)
+          .single();
+        targetPropertyId = firstProp?.id || null;
+      }
+      if (!targetPropertyId) {
+        return {
+          totalRooms: 0, occupiedRooms: 0, occupancyRate: 0,
+          totalIncome: 0, totalExpense: 0, netProfit: 0,
+          monthlyRent: 0, dailyRent: 0,
+          ipl: 0, managementFee: 0, maintenanceCost: 0,
+          activeRequestCount: 0,
+        };
+      }
       // Rooms
       const { data: rooms } = await supabase
         .from("rooms")
         .select("id, status, type")
-        .eq("property_id", propertyId);
+        .eq("property_id", targetPropertyId);
 
       const totalRooms = rooms?.length || 0;
       const occupiedRooms =
@@ -24,7 +43,7 @@ export function useDashboard() {
       const { data: incomeTx } = await supabase
         .from("transactions")
         .select("amount, category")
-        .eq("property_id", propertyId)
+        .eq("property_id", targetPropertyId)
         .eq("type", "income");
 
       const totalIncome =
@@ -42,7 +61,7 @@ export function useDashboard() {
       const { data: expenseTx } = await supabase
         .from("transactions")
         .select("amount, category")
-        .eq("property_id", propertyId)
+        .eq("property_id", targetPropertyId)
         .eq("type", "expense");
 
       const totalExpense =
@@ -64,7 +83,7 @@ export function useDashboard() {
       const { data: activeRequests } = await supabase
         .from("requests")
         .select("id")
-        .eq("property_id", propertyId)
+        .eq("property_id", targetPropertyId)
         .in("status", ["menunggu", "proses"]);
 
       return {

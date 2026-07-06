@@ -9,12 +9,11 @@ import "@/styles.css";
 
 const queryClient = new QueryClient({
   defaultOptions: {
-    queries: {
-      staleTime: 1000 * 30,
-      retry: 1,
-    },
+    queries: { staleTime: 1000 * 30, retry: 1 },
   },
 });
+
+console.log("[CozyLiving] main.tsx: rendering");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

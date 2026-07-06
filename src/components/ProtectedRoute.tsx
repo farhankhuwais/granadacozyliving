@@ -1,22 +1,14 @@
-import React from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useNavigate } from "react-router-dom";
 
-type UserRole =
-  | "super_admin"
-  | "investor_only"
-  | "manager_only"
-  | "investor_manager";
+type UserRole = "super_admin" | "investor_only" | "manager_only" | "investor_manager";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   roles?: UserRole[];
 }
 
-export default function ProtectedRoute({
-  children,
-  roles,
-}: ProtectedRouteProps) {
+export default function ProtectedRoute({ children, roles }: ProtectedRouteProps) {
   const { session, profile, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -37,19 +29,12 @@ export default function ProtectedRoute({
     return (
       <div className="flex h-screen items-center justify-center bg-black px-4">
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-900/20">
+          <div className="mx-auto mb-4 h-12 w-12 flex items-center justify-center rounded-full bg-red-900/20">
             <span className="text-xl text-red-400">!</span>
           </div>
           <h1 className="text-xl font-bold text-white">Akses Ditolak</h1>
-          <p className="mt-2 text-sm text-gray-400">
-            Anda tidak memiliki izin untuk mengakses halaman ini.
-          </p>
-          <a
-            href="/"
-            className="mt-4 inline-block rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white hover:bg-blue-700"
-          >
-            Kembali ke Dashboard
-          </a>
+          <p className="mt-2 text-sm text-gray-400">Anda tidak memiliki izin.</p>
+          <a href="/" className="mt-4 inline-block rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white">Kembali</a>
         </div>
       </div>
     );

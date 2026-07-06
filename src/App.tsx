@@ -27,66 +27,31 @@ function DashboardRouter() {
   const { profile } = useAuth();
   if (!profile) return null;
 
-  const isInvestor = ["super_admin", "investor_only", "investor_manager"].includes(
-    profile.role
-  );
+  const isInvestor = ["super_admin", "investor_only", "investor_manager"].includes(profile.role);
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          isInvestor ? <InvestorDashboardPage /> : <PengelolaPage />
-        }
-      />
-      <Route
-        path="/kamar"
-        element={
-          <ProtectedRoute>
-            <KamarPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/keuangan"
-        element={
-          <ProtectedRoute roles={["super_admin", "investor_only", "investor_manager"]}>
-            <KeuanganPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/permintaan"
-        element={
-          <ProtectedRoute roles={["super_admin", "manager_only", "investor_manager"]}>
-            <PermintaanPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/pengelola"
-        element={
-          <ProtectedRoute roles={["super_admin", "manager_only", "investor_manager"]}>
-            <PengelolaPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profil"
-        element={
-          <ProtectedRoute>
-            <ProfilPage />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin/users"
-        element={
-          <ProtectedRoute roles={["super_admin"]}>
-            <SignupPage />
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={isInvestor ? <InvestorDashboardPage /> : <PengelolaPage />} />
+      <Route path="/kamar" element={<ProtectedRoute><KamarPage /></ProtectedRoute>} />
+      <Route path="/keuangan" element={
+        <ProtectedRoute roles={["super_admin", "investor_only", "investor_manager"]}>
+          <KeuanganPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/permintaan" element={
+        <ProtectedRoute roles={["super_admin", "manager_only", "investor_manager"]}>
+          <PermintaanPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/pengelola" element={
+        <ProtectedRoute roles={["super_admin", "manager_only", "investor_manager"]}>
+          <PengelolaPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/profil" element={<ProtectedRoute><ProfilPage /></ProtectedRoute>} />
+      <Route path="/admin/users" element={
+        <ProtectedRoute roles={["super_admin"]}><SignupPage /></ProtectedRoute>
+      } />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
