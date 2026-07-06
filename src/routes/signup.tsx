@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import MobileLayout from "@/components/MobileLayout";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type UserRole =
   | "investor_only"
@@ -8,6 +11,7 @@ type UserRole =
   | "investor_manager";
 
 export default function SignupPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -72,10 +76,13 @@ export default function SignupPage() {
   }
 
   return (
-      <ProtectedRoute roles={["super_admin"]}>
-      <div className="flex min-h-screen items-center justify-center bg-white px-4">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 text-center">
+    <ProtectedRoute roles={["super_admin"]}>
+      <MobileLayout>
+        <div className="px-5 pt-12 pb-6">
+          <button onClick={() => navigate("/")} className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Kembali
+          </button>
+          <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-foreground">Buat Akun Baru</h1>
             <p className="mt-1 text-sm text-muted-foreground">Super Admin</p>
           </div>
@@ -153,7 +160,7 @@ export default function SignupPage() {
             </button>
           </form>
         </div>
-      </div>
+      </MobileLayout>
     </ProtectedRoute>
   );
 }
