@@ -10,6 +10,7 @@ import {
 } from "@/hooks/use-tenants";
 import MobileLayout from "@/components/MobileLayout";
 import { useAuth } from "@/hooks/use-auth";
+import { uploadRoomPhoto, getRoomPhotos } from "@/lib/storage";
 import {
   BedDouble,
   ChevronDown,
@@ -22,6 +23,8 @@ import {
   DollarSign,
   User,
   LogOut,
+  Image,
+  Camera,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -90,6 +93,9 @@ export default function KamarPage() {
   const [filter, setFilter] = useState("semua");
   const [search, setSearch] = useState("");
   const [view, setView] = useState<"rooms" | "history">("rooms");
+  const [showPhotoRoom, setShowPhotoRoom] = useState<string | null>(null);
+  const [roomPhotos, setRoomPhotos] = useState<Record<string, { id: string; photo_url: string; caption: string }[]>>({});
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [form, setForm] = useState<TenantFormData>(emptyForm);
   const [formError, setFormError] = useState("");
@@ -213,6 +219,31 @@ export default function KamarPage() {
       const msg = typeof e === "object" && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
       alert(`Gagal: ${msg}`);
     }
+  }
+
+  async function toggleRoomPhotos(roomId: string) {
+    if (showPhotoRoom === roomId) {
+      setShowPhotoRoom(null);
+      return;
+    }
+    setShowPhotoRoom(roomId);
+    try {
+      const photos = await getRoomPhotos(roomId);
+      setRoomPhotos(prev => ({ ...prev, [roomId]: photos }));
+    } catch { console.error("Gagal load foto"); }
+  }
+
+  async function handleUploadPhoto(roomId: string, file: File) {
+    if (!profile?.id) return;
+    setUploadingPhoto(true);
+    try {
+      await uploadRoomPhoto(roomId, file, "", "interior", profile.id);
+      const photos = await getRoomPhotos(roomId);
+      setRoomPhotos(prev => ({ ...prev, [roomId]: photos }));
+    } catch (e: unknown) {
+      alert(`Gagal upload: ${e instanceof Error ? e.message : "error"}`);
+    }
+    setUploadingPhoto(false);
   }
 
   async function handleAddRoom() {
@@ -629,6 +660,39 @@ export default function KamarPage() {
                   </div>
                 )}
 
+                {/* Foto Kamar */}
+                <div className="border-t border-border px-4 py-2">
+                  <button onClick={() => toggleRoomPhotos(room.id)} className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground">
+                    <Image className="h-3.5 w-3.5" />
+                    {showPhotoRoom === room.id ? "Tutup Foto" : "Lihat Foto"}
+                  </button>
+                </div>
+
+                {showPhotoRoom === room.id && (
+                  <div className="border-t border-border px-4 py-3 space-y-2">
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {(roomPhotos[room.id] || []).map(photo => (
+                        <img key={photo.id} src={photo.photo_url} alt={photo.caption || "Foto kamar"}
+                          className="h-24 w-32 shrink-0 rounded-lg object-cover border border-border" />
+                      ))}
+                      {(roomPhotos[room.id] || []).length === 0 && (
+                        <p className="text-[11px] text-muted-foreground">Belum ada foto</p>
+                      )}
+                    </div>
+                    {canManage && (
+                      <label className="flex items-center gap-1.5 text-[11px] text-primary cursor-pointer">
+                        <Camera className="h-3.5 w-3.5" />
+                        {uploadingPhoto ? "Mengupload..." : "Upload Foto"}
+                        <input type="file" accept="image/*" className="hidden"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (file) { await handleUploadPhoto(room.id, file); e.target.value = ""; }
+                          }} />
+                      </label>
+                    )}
+                  </div>
+                )}
+
                 {/* Room actions — for empty rooms only */}
                 {profile?.role === "super_admin" && room.status !== "terisi" && (
                   <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
@@ -764,27 +828,31 @@ export default function KamarPage() {
           ) : (
             <div className="space-y-3">
               {historyTenants.map((t) => (
-                <div key={t.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
-                      <User className="h-5 w-5 text-muted-foreground" />
+                <div key={t.id} className="rounded-xl border border-border bg-card px-3.5 py-2.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <User className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">{t.name}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-foreground truncate">{t.name}</p>
+                        <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">Selesai</span>
+                      </div>
                       {t.rooms && (
-                        <p className="text-[11px] text-muted-foreground">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
+                        <p className="text-[11px] text-muted-foreground truncate">{t.rooms.name || `Kamar ${t.rooms.room_number}`}</p>
                       )}
-                      <p className="text-[10px] text-muted-foreground mt-1">{t.lease_start} — {t.lease_end}</p>
-                      {t.phone && <p className="text-[10px] text-muted-foreground">📞 {t.phone}</p>}
-                      {t.id_number && <p className="text-[10px] text-muted-foreground">{t.id_type || "ID"}: {t.id_number}</p>}
-                      {t.paid_amount ? (
-                        <p className="text-[10px] text-success mt-px">Lunas: Rp {t.paid_amount.toLocaleString("id-ID")}</p>
-                      ) : (
-                        <p className="text-[10px] text-destructive mt-px">Belum dibayar</p>
-                      )}
-                      {t.ended_at && <p className="text-[10px] text-muted-foreground/60 mt-px">Selesai: {t.ended_at}</p>}
+                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground">
+                        <span>{t.lease_start} — {t.lease_end}</span>
+                        {t.phone && <span>📞 {t.phone}</span>}
+                        {t.id_number && <span>{t.id_type || "ID"}: {t.id_number}</span>}
+                        {t.paid_amount ? (
+                          <span className="text-success">Lunas Rp {t.paid_amount.toLocaleString("id-ID")}</span>
+                        ) : (
+                          <span className="text-destructive">Belum dibayar</span>
+                        )}
+                        {t.ended_at && <span className="text-muted-foreground/60">Selesai: {t.ended_at}</span>}
+                      </div>
                     </div>
-                    <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-semibold text-muted-foreground">Selesai</span>
                   </div>
                 </div>
               ))}
