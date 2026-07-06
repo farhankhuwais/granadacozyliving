@@ -556,8 +556,15 @@ export default function KamarPage() {
                     </p>
                     <p className="text-[11px] text-muted-foreground">
                       {room.name ? `Unit #${room.room_number}` : `Unit lantai ${Math.ceil(room.room_number / 2)}`}
-                      {tenant && ` - ${tenant.name}`}
                     </p>
+                    {tenant && (
+                      <div className="mt-1.5 space-y-0.5">
+                        <p className="text-[12px] font-medium text-foreground">{tenant.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{tenant.lease_start} — {tenant.lease_end}</p>
+                        {tenant.phone && <p className="text-[10px] text-muted-foreground">📞 {tenant.phone}</p>}
+                        {tenant.id_number && <p className="text-[10px] text-muted-foreground">{tenant.id_type || "ID"}: {tenant.id_number}</p>}
+                      </div>
+                    )}
                     {room.creator && (
                       <p className="text-[10px] text-muted-foreground/60 mt-px">
                         Dibuat oleh: {room.creator.full_name}
@@ -576,20 +583,25 @@ export default function KamarPage() {
                     {cfg.label}
                   </span>
                   {tenant && tenant.payment_status === "unpaid" && (
-                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-1 text-[10px] font-semibold text-destructive">
-                      Belum Bayar
+                    <span className="inline-flex items-center rounded-full bg-destructive/10 px-2 py-1 text-[10px] font-semibold text-destructive whitespace-nowrap">
+                      Belum Dibayar
                     </span>
                   )}
                   {tenant && tenant.payment_status === "paid" && (
-                    <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-1 text-[10px] font-semibold text-success">
+                    <span className="inline-flex items-center rounded-full bg-success/10 px-2 py-1 text-[10px] font-semibold text-success whitespace-nowrap">
                       Lunas
                     </span>
                   )}
-                  {tenant && tenant.payment_status === "partial" && (
-                    <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-1 text-[10px] font-semibold text-warning">
-                      Partial
-                    </span>
-                  )}
+                  {tenant && tenant.payment_status === "partial" && (() => {
+                    const total = room.type === "bulanan" ? (room.monthly_price || 1500000) : (room.daily_price || 200000) * 22;
+                    const paid = tenant.paid_amount || 0;
+                    const sisa = total - paid;
+                    return (
+                      <span className="inline-flex items-center rounded-full bg-warning/10 px-2 py-1 text-[10px] font-semibold text-warning whitespace-nowrap">
+                        Sisa: Rp {sisa.toLocaleString("id-ID")}
+                      </span>
+                    );
+                  })()}
                   {isHarian &&
                     (isExpanded ? (
                       <ChevronUp className="h-4 w-4 text-muted-foreground" />
