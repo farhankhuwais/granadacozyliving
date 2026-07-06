@@ -91,12 +91,24 @@ export function useDeleteRoom() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      // Delete related data first, then room
-      await supabase.from("tenants").delete().eq("room_id", id);
-      await supabase.from("room_photos").delete().eq("room_id", id);
-      await supabase.from("requests").delete().eq("room_id", id);
-      await supabase.from("request_photos").delete().eq("room_id", id);
-      // Not needed since request_photos uses request_id, but keep for safety
+      // Get request IDs for this room (for cascade delete of request_photos)
+      const { data: roomRequests } = await supabase
+        .from("requests").select("id").eq("room_id", id);
+      const reqIds = roomRequests?.map(r => r.id) || [];
+
+      if (reqIds.length > 0) {
+        const { error: err0 } = await supabase
+          .from("request_photos").delete().in("request_id", reqIds);
+        if (err0) throw err0;
+      }
+
+      const { error: err1 } = await supabase.from("tenants").delete().eq("room_id", id);
+      if (err1) throw err1;
+      const { error: err2 } = await supabase.from("room_photos").delete().eq("room_id", id);
+      if (err2) throw err2;
+      const { error: err3 } = await supabase.from("requests").delete().eq("room_id", id);
+      if (err3) throw err3;
+
       const { error } = await supabase.from("rooms").delete().eq("id", id);
       if (error) throw error;
     },

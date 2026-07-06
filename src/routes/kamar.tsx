@@ -15,6 +15,7 @@ import {
   X,
   Trash2,
   DoorOpen,
+  Pencil,
 } from "lucide-react";
 
 const HARGA_HARIAN = 200000;
@@ -178,14 +179,16 @@ export default function KamarPage() {
   async function handleDeleteRoom(roomId: string, roomNumber: number) {
     const hasTenants = rooms?.find(r => r.id === roomId)?.tenants?.length;
     const msg = hasTenants
-      ? `Kamar ${roomNumber} masih punya penyewa aktif. Lanjutkan akan hapus semua data.`
-      : `Yakin hapus Kamar ${roomNumber}?`;
+      ? `Kamar ${roomNumber} masih punya penyewa. Hapus semua data terkait?`
+      : `Hapus Kamar ${roomNumber}?`;
     if (!confirm(msg)) return;
     try {
       await deleteRoom.mutateAsync(roomId);
       alert(`Kamar ${roomNumber} berhasil dihapus`);
-    } catch (e) {
-      alert(`Gagal menghapus kamar: ${e instanceof Error ? e.message : "unknown error"}`);
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      alert(`Gagal: ${errMsg}`);
+      console.error("[DeleteRoom]", errMsg);
     }
   }
 
@@ -472,27 +475,27 @@ export default function KamarPage() {
                     ))}
                 </div>
 
-                {/* Tenant actions */}
+                {/* Room actions — always show for super admin */}
+                {profile?.role === "super_admin" && (
+                  <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
+                    <button onClick={() => startEditRoom(room)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit kamar">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => handleDeleteRoom(room.id, room.room_number)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus kamar">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {/* Tenant actions — only for occupied rooms */}
                 {room.status === "terisi" && tenant && canManage && (
-                  <div className="border-t border-border px-4 py-2 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => startEditTenant(tenant)} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80">
-                        Edit Tenant
-                      </button>
-                      <button onClick={() => handleEndLease(tenant.id, room.id)} className="flex items-center gap-1 text-xs text-red-400 hover:text-red-300">
-                        <Trash2 className="h-3 w-3" /> Akhiri Sewa
-                      </button>
-                    </div>
-                    {profile?.role === "super_admin" && (
-                      <div className="flex items-center gap-2 border-l border-border pl-2">
-                        <button onClick={() => startEditRoom(room)} className="flex items-center gap-1 text-xs text-primary hover:text-primary/80">
-                          Edit Kamar
-                        </button>
-                        <button onClick={() => handleDeleteRoom(room.id, room.room_number)} className="flex items-center gap-1 text-xs text-destructive hover:text-destructive/80">
-                          <Trash2 className="h-3 w-3" /> Hapus Kamar
-                        </button>
-                      </div>
-                    )}
+                  <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
+                    <button onClick={() => startEditTenant(tenant)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit penyewa">
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button onClick={() => handleEndLease(tenant.id, room.id)} className="text-muted-foreground hover:text-destructive transition-colors" title="Akhiri sewa">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 )}
 
@@ -547,7 +550,7 @@ export default function KamarPage() {
                 )}
 
                 {/* Edit tenant form */}
-                {editingTenant?.id === tenant?.id && (() => {
+                {editingTenant && editingTenant.id === tenant?.id && (() => {
                   const et = editingTenant!;
                   return (
                   <div className="border-t border-border bg-muted/30 px-4 py-3 space-y-2">
