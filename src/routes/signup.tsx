@@ -1,17 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MobileLayout from "@/components/MobileLayout";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-type UserRole =
-  | "investor_only"
-  | "manager_only"
-  | "investor_manager";
+type UserRole = "investor_only" | "manager_only" | "investor_manager";
+
+interface UserAccount {
+  id: string;
+  email: string;
+  full_name: string;
+  role: string;
+  created_at: string;
+}
 
 export default function SignupPage() {
   const navigate = useNavigate();
+  const [users, setUsers] = useState<UserAccount[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -19,6 +26,29 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [success]);
+
+  async function fetchUsers() {
+    setLoadingUsers(true);
+    const { data } = await supabase
+      .from("profiles")
+      .select("id, email, full_name, role, created_at")
+      .order("created_at", { ascending: false });
+    setUsers(data || []);
+    setLoadingUsers(false);
+  }
+
+  async function handleDeleteUser(id: string, email: string) {
+    if (!confirm(`Hapus akun ${email}?`)) return;
+    // Delete profile + auth user (profile cascade)
+    const { error } = await supabase.from("profiles").delete().eq("id", id);
+    if (error) { alert(error.message); return; }
+    alert("Akun dihapus");
+    setUsers(prev => prev.filter(u => u.id !== id));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -159,6 +189,33 @@ export default function SignupPage() {
               {loading ? "Memproses..." : "Buat Akun"}
             </button>
           </form>
+        </div>
+
+        {/* User list */}
+        <div className="px-5 pb-6">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Riwayat Akun ({users.length})</h3>
+          {loadingUsers ? (
+            <p className="text-xs text-muted-foreground">Memuat...</p>
+          ) : users.length === 0 ? (
+            <p className="text-xs text-muted-foreground">Belum ada akun</p>
+          ) : (
+            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+              {users.map(u => (
+                <div key={u.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-foreground truncate">{u.full_name || "—"}</p>
+                    <p className="text-[10px] text-muted-foreground">{u.email} · {u.role.replace("_", " ")}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-2">
+                    <span className="text-[9px] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("id-ID")}</span>
+                    <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </MobileLayout>
     </ProtectedRoute>

@@ -2,8 +2,8 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
-import CreateUserForm from "@/components/CreateUserForm";
-import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X, Shield } from "lucide-react";
 
 export default function ProfilPage() {
   const { profile, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
@@ -196,10 +196,17 @@ export default function ProfilPage() {
           <p className={`mb-4 text-sm text-center ${msgOk ? "text-success" : "text-destructive"}`}>{msg}</p>
         )}
 
-        {/* Create User (Super Admin only) */}
-        <div className="mb-6">
-          <CreateUserForm />
-        </div>
+        {/* Admin Panel (Super Admin only) */}
+        {profile?.role === "super_admin" && (
+          <Link to="/admin/users"
+            className="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left shadow-sm hover:bg-primary/10 transition-colors mb-6">
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-primary" />
+              <span className="text-sm font-semibold text-foreground">Panel Admin</span>
+            </div>
+            <span className="text-xs text-muted-foreground">Kelola akun →</span>
+          </Link>
+        )}
 
         <button onClick={signOut} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-destructive transition-colors hover:bg-destructive/10">
           <LogOut className="h-4 w-4" />
