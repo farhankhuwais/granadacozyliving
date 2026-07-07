@@ -38,6 +38,7 @@ export default function SignupPage() {
     const { data } = await supabase
       .from("profiles")
       .select("id, email, full_name, role, created_at")
+      .neq("role", "super_admin")
       .order("created_at", { ascending: false });
     setUsers(data || []);
     setLoadingUsers(false);
