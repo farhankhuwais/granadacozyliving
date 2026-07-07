@@ -70,7 +70,12 @@ export default function ProfilPage() {
       setMsg("Foto profil diubah");
       setMsgOk(true);
       setTimeout(() => setMsg(""), 3000);
-    } catch (e: unknown) { setMsg(e instanceof Error ? e.message : "Gagal upload"); setMsgOk(false); }
+    } catch (e: unknown) {
+      const errMsg = e instanceof Error ? e.message : JSON.stringify(e);
+      setMsg(`Gagal: ${errMsg}`);
+      setMsgOk(false);
+      console.error("[Avatar]", e);
+    }
   }
 
   return (
