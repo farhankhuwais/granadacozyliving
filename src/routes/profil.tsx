@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
+import CreateUserForm from "@/components/CreateUserForm";
 import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X } from "lucide-react";
 
 export default function ProfilPage() {
@@ -194,6 +195,11 @@ export default function ProfilPage() {
         {msg && (
           <p className={`mb-4 text-sm text-center ${msgOk ? "text-success" : "text-destructive"}`}>{msg}</p>
         )}
+
+        {/* Create User (Super Admin only) */}
+        <div className="mb-6">
+          <CreateUserForm />
+        </div>
 
         <button onClick={signOut} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-destructive transition-colors hover:bg-destructive/10">
           <LogOut className="h-4 w-4" />
