@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X, Shield } from "lucide-react";
 
 export default function ProfilPage() {
-  const { profile, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
+  const { profile, signOut, updateProfile, updatePassword, refreshProfile } = useAuth();
   const [propertyName, setPropertyName] = useState("");
   const [editing, setEditing] = useState<"name" | "email" | "password" | null>(null);
   const [editVal, setEditVal] = useState("");
@@ -33,19 +33,6 @@ export default function ProfilPage() {
       setMsgOk(true);
       setEditing(null);
     } catch (e: unknown) { setMsg(e instanceof Error ? e.message : "Gagal"); setMsgOk(false); }
-    setLoading(false);
-    setTimeout(() => setMsg(""), 3000);
-  }
-
-  async function handleSaveEmail() {
-    if (!editVal.trim()) return;
-    setLoading(true);
-    try {
-      await updateEmail(editVal.trim());
-      setMsg("Email verifikasi dikirim ke email baru. Cek inbox untuk konfirmasi.");
-      setMsgOk(true);
-      setEditing(null);
-    } catch (e: unknown) { setMsg(`Gagal: ${e instanceof Error ? e.message : String(e)}`); setMsgOk(false); }
     setLoading(false);
     setTimeout(() => setMsg(""), 3000);
   }
@@ -163,24 +150,8 @@ export default function ProfilPage() {
           </div>
         </div>
 
-        {/* Edit Email / Password */}
+        {/* Edit Password */}
         <div className="mb-6 space-y-2">
-          <button onClick={() => { setEditing(editing === "email" ? null : "email"); setEditVal(""); setMsg(""); }}
-            className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm hover:bg-muted/50">
-            <span className="text-sm font-medium text-foreground">Ganti Email</span>
-            <Pencil className="h-4 w-4 text-muted-foreground" />
-          </button>
-          {editing === "email" && (
-            <div className="rounded-2xl border border-border bg-card p-4 space-y-2">
-              <input type="email" value={editVal} onChange={e => setEditVal(e.target.value)} placeholder="Email baru"
-                className="w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
-              <button onClick={handleSaveEmail} disabled={loading}
-                className="w-full rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-                {loading ? "Menyimpan..." : "Simpan Email"}
-              </button>
-            </div>
-          )}
-
           <button onClick={() => { setEditing(editing === "password" ? null : "password"); setEditVal(""); setEditVal2(""); setMsg(""); }}
             className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm hover:bg-muted/50">
             <span className="text-sm font-medium text-foreground">Ganti Password</span>
