@@ -261,17 +261,17 @@ export default function SignupPage() {
         <div className="px-5 pb-6 flex gap-2">
           <button onClick={() => { setShowProps(!showProps); if (!showProps) setShowUsers(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showProps ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-            {showProps ? "Tutup" : "Buka"} Properti
+            {showProps ? "Tutup" : "Buka"} Properti ({properties?.length || 0})
           </button>
           <button onClick={() => { setShowUsers(!showUsers); if (!showUsers) setShowProps(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showUsers ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-            {showUsers ? "Tutup" : "Buka"} Riwayat Akun ({users.length})
+            {showUsers ? "Tutup" : "Buka"} Akun ({users.length})
           </button>
         </div>
 
         {/* Properties Management */}
         {showProps && (<div className="px-5 pb-6">
-          <div className="space-y-3">
+          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
             <div className="rounded-xl border border-border bg-card p-3">
               <div className="flex gap-2">
                 <input type="text" value={propName} onChange={e => setPropName(e.target.value)}
