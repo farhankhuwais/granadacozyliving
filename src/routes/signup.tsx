@@ -233,11 +233,11 @@ export default function SignupPage() {
 
         {/* Toggle buttons */}
         <div className="px-5 pb-6 flex gap-2">
-          <button onClick={() => setShowProps(!showProps)}
+          <button onClick={() => { setShowProps(!showProps); if (!showProps) setShowUsers(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showProps ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
             {showProps ? "Tutup" : "Buka"} Properti
           </button>
-          <button onClick={() => setShowUsers(!showUsers)}
+          <button onClick={() => { setShowUsers(!showUsers); if (!showUsers) setShowProps(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showUsers ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
             {showUsers ? "Tutup" : "Buka"} Riwayat Akun ({users.length})
           </button>
