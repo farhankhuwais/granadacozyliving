@@ -15,6 +15,7 @@ import {
   Check,
   X,
   Plus,
+  Trash2,
 } from "lucide-react";
 
 const statusConfig: Record<
@@ -201,8 +202,8 @@ export default function PermintaanPage() {
           {canManage && (
             <div className="flex gap-2">
               {requests && requests.length > 0 && (
-                <button onClick={handleDeleteAll} className="flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-white px-3.5 py-2 text-xs font-semibold text-destructive">
-                  Hapus Semua
+                <button onClick={handleDeleteAll} className="flex items-center justify-center rounded-xl border border-destructive/30 bg-white px-3 py-2 text-destructive hover:bg-destructive/5 transition-colors" title="Hapus semua">
+                  <Trash2 className="h-4 w-4" />
                 </button>
               )}
               <button
