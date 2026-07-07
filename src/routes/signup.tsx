@@ -19,6 +19,8 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
+  const [searchUser, setSearchUser] = useState("");
+  const [filterRole, setFilterRole] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -109,8 +111,8 @@ export default function SignupPage() {
     <ProtectedRoute roles={["super_admin"]}>
       <MobileLayout>
         <div className="px-5 pt-12 pb-6">
-          <button onClick={() => navigate("/")} className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Kembali
+          <button onClick={() => navigate("/profil")} className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+            <ArrowLeft className="h-4 w-4" /> Kembali ke Profil
           </button>
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-bold text-foreground">Buat Akun Baru</h1>
@@ -194,13 +196,32 @@ export default function SignupPage() {
         {/* User list */}
         <div className="px-5 pb-6">
           <h3 className="mb-3 text-sm font-semibold text-foreground">Riwayat Akun ({users.length})</h3>
+          <div className="mb-3 flex gap-2">
+            <input type="text" value={searchUser} onChange={e => setSearchUser(e.target.value)}
+              placeholder="Cari nama/email..."
+              className="flex-1 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+            <select value={filterRole} onChange={e => setFilterRole(e.target.value)}
+              className="rounded-lg border border-border bg-card px-2 py-1.5 text-xs text-foreground">
+              <option value="">Semua</option>
+              <option value="investor_only">Investor</option>
+              <option value="manager_only">Manager</option>
+              <option value="investor_manager">Investor+Manager</option>
+            </select>
+          </div>
           {loadingUsers ? (
             <p className="text-xs text-muted-foreground">Memuat...</p>
           ) : users.length === 0 ? (
             <p className="text-xs text-muted-foreground">Belum ada akun</p>
           ) : (
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {users.map(u => (
+              {users
+                .filter(u => {
+                  if (filterRole && u.role !== filterRole) return false;
+                  if (!searchUser.trim()) return true;
+                  const q = searchUser.toLowerCase();
+                  return u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
+                })
+                .map(u => (
                 <div key={u.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground truncate">{u.full_name || "—"}</p>
