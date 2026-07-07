@@ -261,11 +261,11 @@ export default function SignupPage() {
         <div className="px-5 pb-6 flex gap-2">
           <button onClick={() => { setShowProps(!showProps); if (!showProps) setShowUsers(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showProps ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-            {showProps ? "Tutup" : "Buka"} Properti ({properties?.length || 0})
+            {showProps ? "Tutup" : "Properti"} ({properties?.length || 0})
           </button>
           <button onClick={() => { setShowUsers(!showUsers); if (!showUsers) setShowProps(false); }}
             className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showUsers ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
-            {showUsers ? "Tutup" : "Buka"} Akun ({users.length})
+            {showUsers ? "Tutup" : "Akun"} ({users.length})
           </button>
         </div>
 
