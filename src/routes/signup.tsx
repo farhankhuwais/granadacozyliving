@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProperties, useCreateProperty, useDeleteProperty } from "@/hooks/use-properties";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MobileLayout from "@/components/MobileLayout";
-import { ArrowLeft, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Pencil, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type UserRole = "investor_only" | "manager_only" | "investor_manager";
@@ -40,6 +40,10 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editValName, setEditValName] = useState("");
+  const [editValRole, setEditValRole] = useState("");
+  const [editValProp, setEditValProp] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -61,6 +65,26 @@ export default function SignupPage() {
     const { error } = await supabase.from("profiles").delete().eq("id", id);
     if (error) { alert(error.message); return; }
     setUsers(prev => prev.filter(u => u.id !== id));
+  }
+
+  function startEditUser(u: UserAccount) {
+    setEditingUser(u.id);
+    setEditValName(u.full_name || "");
+    setEditValRole(u.role);
+    setEditValProp(u.property_id || "");
+  }
+
+  async function handleSaveUser(id: string) {
+    try {
+      const { error } = await supabase.from("profiles").update({
+        full_name: editValName,
+        role: editValRole,
+        property_id: editValProp || null,
+      }).eq("id", id);
+      if (error) throw error;
+      setUsers(prev => prev.map(u => u.id === id ? { ...u, full_name: editValName, role: editValRole, property_id: editValProp || null } : u));
+      setEditingUser(null);
+    } catch (e: unknown) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
   async function handleAddProp() {
@@ -302,6 +326,27 @@ export default function SignupPage() {
                 const q = searchUser.toLowerCase();
                 return u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
               }).map(u => (
+                editingUser === u.id ? (
+                  <div key={u.id} className="rounded-xl border border-primary/30 bg-primary/5 px-3.5 py-3 space-y-2">
+                    <input type="text" value={editValName} onChange={e => setEditValName(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                    <select value={editValRole} onChange={e => setEditValRole(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground">
+                      <option value="investor_only">Investor</option>
+                      <option value="manager_only">Manager</option>
+                      <option value="investor_manager">Investor+Manager</option>
+                    </select>
+                    <select value={editValProp} onChange={e => setEditValProp(e.target.value)}
+                      className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground">
+                      <option value="">—</option>
+                      {properties?.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                    </select>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleSaveUser(u.id)} className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-white"><Check className="h-3.5 w-3.5 inline" /> Simpan</button>
+                      <button onClick={() => setEditingUser(null)} className="flex-1 rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground"><X className="h-3.5 w-3.5 inline" /> Batal</button>
+                    </div>
+                  </div>
+                ) : (
                 <div key={u.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground truncate">{u.full_name || "—"}</p>
@@ -309,12 +354,15 @@ export default function SignupPage() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span className="text-[9px] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("id-ID")}</span>
+                    <button onClick={() => startEditUser(u)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
+                      <Pencil className="h-3 w-3" />
+                    </button>
                     <button onClick={() => handleDeleteUser(u.id, u.email)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
                       <Trash2 className="h-3 w-3" />
                     </button>
                   </div>
                 </div>
-              ))}
+              )))}
             </div>
           )}
         </div>)}
