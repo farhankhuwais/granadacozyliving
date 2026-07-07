@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
@@ -7,6 +7,7 @@ import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X, Shiel
 
 export default function ProfilPage() {
   const { profile, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
+  const [propertyName, setPropertyName] = useState("");
   const [editing, setEditing] = useState<"name" | "email" | "password" | null>(null);
   const [editVal, setEditVal] = useState("");
   const [editVal2, setEditVal2] = useState("");
@@ -14,6 +15,14 @@ export default function ProfilPage() {
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!profile?.propertyId) { setPropertyName("—"); return; }
+    (async () => {
+      const { data } = await supabase.from("properties").select("name").eq("id", profile.propertyId).single();
+      setPropertyName(data?.name || "—");
+    })();
+  }, [profile?.propertyId]);
 
   async function handleSaveName() {
     if (!editVal.trim()) return;
@@ -129,7 +138,7 @@ export default function ProfilPage() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Properti</p>
-              <p className="text-sm font-semibold text-foreground">Cozy Living by Granada</p>
+              <p className="text-sm font-semibold text-foreground">{propertyName || "—"}</p>
             </div>
           </div>
 
