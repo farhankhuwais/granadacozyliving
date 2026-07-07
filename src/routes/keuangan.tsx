@@ -318,7 +318,7 @@ export default function KeuanganPage() {
         </div>
 
         {/* Transaction List */}
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-[calc(100dvh-320px)] overflow-y-auto pr-1">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-600 border-t-white" />

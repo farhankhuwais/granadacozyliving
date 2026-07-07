@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   useRequests,
   useCreateRequest,
@@ -53,7 +53,7 @@ export default function PermintaanPage() {
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [viewerUrl, setViewerUrl] = useState<string | null>(null);
-  const [uploadingRoom, setUploadingRoom] = useState<string | null>(null);
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const canManage =
     profile &&
@@ -163,7 +163,6 @@ export default function PermintaanPage() {
 
   async function handleUpload(requestId: string, file: File, type: string) {
     if (!profile?.id) return;
-    setUploadingRoom(requestId);
     try {
       const ext = file.name.split(".").pop();
       const path = `requests/${requestId}/${type}_${Date.now()}.${ext}`;
@@ -178,7 +177,6 @@ export default function PermintaanPage() {
       // Refetch requests to show new photo
       await refetch();
     } catch (e) { alert(`Gagal upload: ${e instanceof Error ? e.message : "error"}`); }
-    setUploadingRoom(null);
   }
 
   const filteredRequests = requests?.filter((r) => {
@@ -317,7 +315,7 @@ export default function PermintaanPage() {
         )}
 
         {/* Request List */}
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[calc(100dvh-320px)] overflow-y-auto pr-1">
           {isLoading ? (
             <div className="flex justify-center py-8">
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-600 border-t-white" />
@@ -374,44 +372,39 @@ export default function PermintaanPage() {
                         </p>
                       )}
                       {req.request_photos?.length > 0 && (
-                        <div className="flex gap-2 mt-2 flex-wrap">
-                          {req.request_photos.sort((a: any) => a.photo_type === "after" ? 1 : -1).map((photo: { id: string; photo_url: string; photo_type: string }) => (
-                            <div key={photo.id} className="relative">
-                              <img src={photo.photo_url} alt=""
-                                className={`rounded-lg object-cover border cursor-pointer transition-opacity hover:opacity-80 ${
-                                  req.status === "menunggu" ? "h-24 w-32 border-primary/30" : "h-16 w-20 border-border"
-                                }`}
-                                onClick={() => setViewerUrl(photo.photo_url)} />
-                              <span className={`absolute -top-1.5 -right-1.5 text-[9px] font-bold px-1 rounded-full ${photo.photo_type === "after" ? "bg-success text-white" : "bg-warning text-white"}`}>
-                                {photo.photo_type === "after" ? "A" : "S"}
-                              </span>
-                            </div>
+                        <div className="flex gap-2 mt-2 overflow-x-auto pb-1 items-start">
+                          {req.request_photos.map((photo: { id: string; photo_url: string }) => (
+                            <img key={photo.id} src={photo.photo_url} alt=""
+                              className="h-14 w-20 shrink-0 rounded-lg object-cover border border-border cursor-pointer hover:opacity-80 transition-opacity"
+                              onClick={() => setViewerUrl(photo.photo_url)} />
                           ))}
-                          {uploadingRoom === req.id && (
-                            <div className="h-16 w-20 rounded-lg border border-border bg-muted flex items-center justify-center text-[10px] text-muted-foreground">Uploading...</div>
+                          {canManage && req.status !== "ditolak" && (
+                            <>
+                              <button type="button" onClick={() => fileInputRefs.current[req.id]?.click()}
+                                className="inline-flex items-center justify-center w-14 h-14 shrink-0 border-2 border-dashed border-muted-foreground/40 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors" title="Tambah foto">
+                                <Plus className="h-5 w-5 text-muted-foreground" />
+                              </button>
+                              <input type="file" accept="image/*" className="hidden" ref={el => fileInputRefs.current[req.id] = el}
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) { await handleUpload(req.id, file, "evidence"); e.target.value = ""; }
+                                }} />
+                            </>
                           )}
                         </div>
                       )}
-                      {/* Upload photos when in progress */}
-                      {canManage && (req.status === "proses" || req.status === "diizinkan") && (
-                        <div className="flex gap-2 mt-2">
-                          <label className="flex items-center gap-1 text-[10px] text-primary cursor-pointer">
-                            📸 Before
-                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      {(!req.request_photos?.length && canManage && req.status !== "ditolak") && (
+                        <>
+                          <button type="button" onClick={() => fileInputRefs.current[`add-${req.id}`]?.click()}
+                            className="inline-flex items-center justify-center w-14 h-14 border-2 border-dashed border-muted-foreground/40 rounded-lg cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors mt-2" title="Tambah foto">
+                            <Plus className="h-5 w-5 text-muted-foreground" />
+                          </button>
+                          <input type="file" accept="image/*" className="hidden" ref={el => fileInputRefs.current[`add-${req.id}`] = el}
+                            onChange={async (e) => {
                               const file = e.target.files?.[0];
-                              if (file) await handleUpload(req.id, file, "before");
-                              e.target.value = "";
+                              if (file) { await handleUpload(req.id, file, "evidence"); e.target.value = ""; }
                             }} />
-                          </label>
-                          <label className="flex items-center gap-1 text-[10px] text-success cursor-pointer">
-                            📸 After
-                            <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
-                              const file = e.target.files?.[0];
-                              if (file) await handleUpload(req.id, file, "after");
-                              e.target.value = "";
-                            }} />
-                          </label>
-                        </div>
+                        </>
                       )}
                     </div>
                     <span

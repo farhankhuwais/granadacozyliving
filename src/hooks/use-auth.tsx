@@ -10,6 +10,7 @@ interface Profile {
   fullName: string | null;
   role: UserRole;
   propertyId: string | null;
+  avatarUrl?: string | null;
 }
 
 interface AuthState {
@@ -23,6 +24,9 @@ interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateProfile: (values: { full_name?: string }) => Promise<void>;
+  updateEmail: (newEmail: string) => Promise<void>;
+  updatePassword: (newPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -41,6 +45,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
         fullName: data.full_name,
         role: data.role as UserRole,
         propertyId: data.property_id,
+        avatarUrl: data.avatar_url,
       };
     }
   } catch (err) {
@@ -102,8 +107,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function updateProfile(values: { full_name?: string }) {
+    if (!state.user) throw new Error("Not logged in");
+    const { error } = await supabase
+      .from("profiles")
+      .update(values)
+      .eq("id", state.user.id);
+    if (error) throw error;
+    await refreshProfile();
+  }
+
+  async function updateEmail(newEmail: string) {
+    const { error } = await supabase.auth.updateUser({ email: newEmail });
+    if (error) throw error;
+  }
+
+  async function updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
+  }
+
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ ...state, signIn, signOut, refreshProfile, updateProfile, updateEmail, updatePassword }}>
       {children}
     </AuthContext.Provider>
   );

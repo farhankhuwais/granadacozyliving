@@ -585,7 +585,7 @@ export default function KamarPage() {
         )}
 
         {/* Room List */}
-        <div className="space-y-3">
+        <div className="space-y-3 max-h-[calc(100dvh-320px)] overflow-y-auto pr-1">
           {rooms
             ?.filter(r => {
               if (filter === "tersedia") return r.status === "tersedia";
@@ -856,7 +856,7 @@ export default function KamarPage() {
           {historyTenants.length === 0 ? (
             <p className="text-center text-sm text-muted-foreground py-8">Belum ada riwayat penyewa</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[calc(100dvh-320px)] overflow-y-auto pr-1">
               <div className="flex justify-end">
                 {canManage && (
                   <button onClick={handleDeleteAllHistory} className="text-xs text-destructive hover:text-destructive/80">Hapus Semua</button>
