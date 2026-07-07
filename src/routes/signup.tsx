@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useProperties, useCreateProperty, useDeleteProperty } from "@/hooks/use-properties";
+import { useProperties, useCreateProperty, useDeleteProperty, useUpdateProperty } from "@/hooks/use-properties";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MobileLayout from "@/components/MobileLayout";
 import { ArrowLeft, Trash2, Plus, Pencil, Check, X } from "lucide-react";
@@ -37,6 +37,10 @@ export default function SignupPage() {
   const [creatingProp, setCreatingProp] = useState(false);
   const { mutateAsync: createProperty } = useCreateProperty();
   const { mutateAsync: deleteProperty } = useDeleteProperty();
+  const { mutateAsync: updateProperty } = useUpdateProperty();
+  const [editingProp, setEditingProp] = useState<string | null>(null);
+  const [editPropName, setEditPropName] = useState("");
+  const [editPropLoc, setEditPropLoc] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -102,6 +106,20 @@ export default function SignupPage() {
     if (!confirm(`Hapus properti "${name}"? Semua data terkait akan terhapus.`)) return;
     try { await deleteProperty(id); }
     catch (e: unknown) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
+  }
+
+  function startEditProp(p: { id: string; name: string; location?: string | null }) {
+    setEditingProp(p.id);
+    setEditPropName(p.name);
+    setEditPropLoc(p.location || "");
+  }
+
+  async function handleSaveProp(id: string) {
+    if (!editPropName.trim()) return;
+    try {
+      await updateProperty({ id, name: editPropName.trim(), location: editPropLoc.trim() || undefined });
+      setEditingProp(null);
+    } catch (e: unknown) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -287,16 +305,34 @@ export default function SignupPage() {
               </div>
             </div>
             {properties?.map(p => (
+              editingProp === p.id ? (
+                <div key={p.id} className="rounded-xl border border-primary/30 bg-primary/5 px-3.5 py-3 space-y-2">
+                  <input type="text" value={editPropName} onChange={e => setEditPropName(e.target.value)}
+                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                  <input type="text" value={editPropLoc} onChange={e => setEditPropLoc(e.target.value)}
+                    placeholder="Lokasi"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-foreground" />
+                  <div className="flex gap-2">
+                    <button onClick={() => handleSaveProp(p.id)} className="flex-1 rounded-lg bg-primary py-1.5 text-xs font-semibold text-white"><Check className="h-3.5 w-3.5 inline" /> Simpan</button>
+                    <button onClick={() => setEditingProp(null)} className="flex-1 rounded-lg bg-muted py-1.5 text-xs font-semibold text-muted-foreground"><X className="h-3.5 w-3.5 inline" /> Batal</button>
+                  </div>
+                </div>
+              ) : (
               <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
                 <div>
                   <p className="text-sm font-semibold text-foreground">{p.name}</p>
                   {p.location && <p className="text-[10px] text-muted-foreground">{p.location}</p>}
                 </div>
-                <button onClick={() => handleDeleteProp(p.id, p.name)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
-                  <Trash2 className="h-3 w-3" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => startEditProp(p)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
+                    <Pencil className="h-3 w-3" />
+                  </button>
+                  <button onClick={() => handleDeleteProp(p.id, p.name)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
               </div>
-            ))}
+            )))}
           </div>
         </div>)}
 
