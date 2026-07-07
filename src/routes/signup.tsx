@@ -29,6 +29,7 @@ export default function SignupPage() {
   const [role, setRole] = useState<UserRole>("investor_only");
   const [selectedProperty, setSelectedProperty] = useState("");
   const [showProps, setShowProps] = useState(false);
+  const [showUsers, setShowUsers] = useState(false);
   const [propName, setPropName] = useState("");
   const [propLoc, setPropLoc] = useState("");
   const [creatingProp, setCreatingProp] = useState(false);
@@ -230,46 +231,51 @@ export default function SignupPage() {
           </form>
         </div>
 
-        {/* Properties Management */}
-        <div className="px-5 pb-6">
-          <button onClick={() => setShowProps(!showProps)} className="flex items-center justify-between w-full mb-3">
-            <h3 className="text-sm font-semibold text-foreground">Kelola Properti ({properties?.length || 0})</h3>
-            <span className="text-xs text-muted-foreground">{showProps ? "Tutup" : "Buka"}</span>
+        {/* Toggle buttons */}
+        <div className="px-5 pb-6 flex gap-2">
+          <button onClick={() => setShowProps(!showProps)}
+            className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showProps ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+            {showProps ? "Tutup" : "Buka"} Properti
           </button>
-          {showProps && (
-            <div className="space-y-3">
-              <div className="rounded-xl border border-border bg-card p-3">
-                <div className="flex gap-2">
-                  <input type="text" value={propName} onChange={e => setPropName(e.target.value)}
-                    placeholder="Nama properti baru"
-                    className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
-                  <input type="text" value={propLoc} onChange={e => setPropLoc(e.target.value)}
-                    placeholder="Lokasi"
-                    className="w-28 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
-                  <button onClick={handleAddProp} disabled={creatingProp}
-                    className="rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-                    <Plus className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              {properties?.map(p => (
-                <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground">{p.name}</p>
-                    {p.location && <p className="text-[10px] text-muted-foreground">{p.location}</p>}
-                  </div>
-                  <button onClick={() => handleDeleteProp(p.id, p.name)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
-                    <Trash2 className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={() => setShowUsers(!showUsers)}
+            className={`flex-1 rounded-xl py-2.5 text-xs font-semibold transition-colors ${showUsers ? "bg-primary text-white" : "bg-muted text-muted-foreground hover:text-foreground"}`}>
+            {showUsers ? "Tutup" : "Buka"} Riwayat Akun ({users.length})
+          </button>
         </div>
 
+        {/* Properties Management */}
+        {showProps && (<div className="px-5 pb-6">
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border bg-card p-3">
+              <div className="flex gap-2">
+                <input type="text" value={propName} onChange={e => setPropName(e.target.value)}
+                  placeholder="Nama properti baru"
+                  className="flex-1 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+                <input type="text" value={propLoc} onChange={e => setPropLoc(e.target.value)}
+                  placeholder="Lokasi"
+                  className="w-28 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+                <button onClick={handleAddProp} disabled={creatingProp}
+                  className="rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+                  <Plus className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            {properties?.map(p => (
+              <div key={p.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{p.name}</p>
+                  {p.location && <p className="text-[10px] text-muted-foreground">{p.location}</p>}
+                </div>
+                <button onClick={() => handleDeleteProp(p.id, p.name)} className="text-muted-foreground hover:text-destructive transition-colors" title="Hapus">
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>)}
+
         {/* User list */}
-        <div className="px-5 pb-6">
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Riwayat Akun ({users.length})</h3>
+        {showUsers && (<div className="px-5 pb-6">
           <div className="mb-3 flex gap-2">
             <input type="text" value={searchUser} onChange={e => setSearchUser(e.target.value)}
               placeholder="Cari nama/email..."
@@ -288,14 +294,12 @@ export default function SignupPage() {
             <p className="text-xs text-muted-foreground">Belum ada akun</p>
           ) : (
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {users
-                .filter(u => {
-                  if (filterRole && u.role !== filterRole) return false;
-                  if (!searchUser.trim()) return true;
-                  const q = searchUser.toLowerCase();
-                  return u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
-                })
-                .map(u => (
+              {users.filter(u => {
+                if (filterRole && u.role !== filterRole) return false;
+                if (!searchUser.trim()) return true;
+                const q = searchUser.toLowerCase();
+                return u.full_name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
+              }).map(u => (
                 <div key={u.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground truncate">{u.full_name || "—"}</p>
@@ -311,7 +315,7 @@ export default function SignupPage() {
               ))}
             </div>
           )}
-        </div>
+        </div>)}
       </MobileLayout>
     </ProtectedRoute>
   );
