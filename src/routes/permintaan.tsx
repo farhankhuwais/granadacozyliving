@@ -339,7 +339,7 @@ export default function PermintaanPage() {
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5">
                       <IconComp className="h-5 w-5 text-primary" />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-foreground">
                         {req.title}
                       </p>

@@ -1,0 +1,2180 @@
+{
+  "version": "2.14",
+  "children": [
+    {
+      "type": "frame",
+      "id": "ri9tX",
+      "x": 860,
+      "y": 0,
+      "name": "Screen Dashboard",
+      "clip": true,
+      "width": 390,
+      "fill": "$bg",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 12,
+      "padding": [
+        12,
+        16
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "xXFuD",
+          "name": "Header",
+          "width": "fill_container",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "HBcGL",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Ringkasan Investasi",
+              "fontFamily": "$font-body",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "N3DAst",
+              "fill": "$text-muted",
+              "content": "Cozy Living by Granada",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "dkKk8",
+          "name": "OccupancyCard",
+          "width": "fill_container",
+          "fill": "$primary",
+          "cornerRadius": 16,
+          "gap": 8,
+          "padding": 16,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "dEDgQ",
+              "fill": "#FFFFFF",
+              "content": "Tingkat Okupansi",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "s0Cwg4",
+              "fill": "#FFFFFF",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "75%",
+              "textAlign": "right",
+              "fontFamily": "$font-body",
+              "fontSize": 28,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "jUgWf",
+          "name": "StatsRow",
+          "width": "fill_container",
+          "gap": 12,
+          "children": [
+            {
+              "type": "frame",
+              "id": "prchF",
+              "name": "IncomeCard",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "IegPz",
+                  "fill": "$text-secondary",
+                  "content": "Pendapatan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "z2QYz",
+                  "fill": "$text-primary",
+                  "content": "Rp 45.000.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 18,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "AKTWp",
+                  "fill": "$text-muted",
+                  "content": "Sewa: Rp 42jt + Harian: Rp 3jt",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "Czp3B",
+              "name": "ExpenseCard",
+              "width": "fill_container",
+              "fill": "$bg-card",
+              "cornerRadius": 14,
+              "layout": "vertical",
+              "gap": 4,
+              "padding": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pmZ1Q",
+                  "fill": "$text-secondary",
+                  "content": "Biaya",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "knP86",
+                  "fill": "$text-primary",
+                  "content": "Rp 8.200.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 18,
+                  "fontWeight": "700"
+                },
+                {
+                  "type": "text",
+                  "id": "cN9oa",
+                  "fill": "$text-muted",
+                  "content": "IPL Rp 4jt + Mgmt Rp 4.2jt",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "FreeT",
+          "name": "NetProfitCard",
+          "width": "fill_container",
+          "fill": "#FFF8F0",
+          "cornerRadius": 14,
+          "stroke": "$accent",
+          "strokeWidth": 1,
+          "gap": 8,
+          "padding": [
+            12,
+            16
+          ],
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "JQxrW",
+              "fill": "$text-secondary",
+              "content": "Hasil Bersih",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "ZKKxr",
+              "fill": "$accent",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Rp 36.800.000",
+              "textAlign": "right",
+              "fontFamily": "$font-body",
+              "fontSize": 20,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "HMGOX",
+          "name": "QuickActions",
+          "width": "fill_container",
+          "layout": "vertical",
+          "gap": 8,
+          "children": [
+            {
+              "type": "text",
+              "id": "egRwn",
+              "fill": "$text-primary",
+              "content": "Aksi Cepat",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "600"
+            },
+            {
+              "type": "frame",
+              "id": "nUCF6",
+              "name": "ActionRow",
+              "width": "fill_container",
+              "gap": 8,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "bYJmX",
+                  "name": "KamarBtn",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "huhgt",
+                      "fill": "$primary",
+                      "content": "🏠",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "E1ruWz",
+                      "fill": "$text-secondary",
+                      "content": "Kamar",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "luhUE",
+                  "name": "KeuanganBtn",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "f0nWL",
+                      "fill": "$text-secondary",
+                      "content": "💰",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "L7vmUF",
+                      "fill": "$text-secondary",
+                      "content": "Keuangan",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "L8YFj9",
+                  "name": "PermintaanBtn",
+                  "width": "fill_container",
+                  "fill": "$bg-card",
+                  "cornerRadius": 12,
+                  "layout": "vertical",
+                  "gap": 4,
+                  "padding": 12,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Fg9Tm",
+                      "fill": "$text-secondary",
+                      "content": "🔧",
+                      "fontFamily": "$font-body",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oXBsr",
+                      "fill": "$text-secondary",
+                      "content": "Permintaan",
+                      "fontFamily": "$font-body",
+                      "fontSize": 10,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "lXvjY",
+          "name": "BottomNav",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 16,
+          "gap": 4,
+          "padding": [
+            12,
+            8
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "G693s",
+              "name": "Kamar",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Pf9Sw",
+                  "fill": "$text-secondary",
+                  "content": "🏠",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "zGJ9E",
+                  "fill": "$text-muted",
+                  "content": "Kamar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "lGttf",
+              "name": "Keuangan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "t5vFrY",
+                  "fill": "$text-secondary",
+                  "content": "💰",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "DBA6F",
+                  "fill": "$text-muted",
+                  "content": "Keuangan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mNlBV",
+              "name": "Dashboard",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "pxqFW",
+                  "fill": "$text-secondary",
+                  "content": "📊",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "yiPIs",
+                  "fill": "$primary",
+                  "content": "Dashboard",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "pdPDY",
+              "name": "Permintaan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "CTrS0",
+                  "fill": "$text-secondary",
+                  "content": "🔧",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "M0R0Ld",
+                  "fill": "$text-muted",
+                  "content": "Permintaan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "I28w79",
+              "name": "Profil",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "likL0",
+                  "fill": "$text-secondary",
+                  "content": "👤",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "krf84",
+                  "fill": "$text-muted",
+                  "content": "Profil",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "bOOM9",
+      "x": 1310,
+      "y": 0,
+      "name": "Screen Kamar",
+      "clip": true,
+      "width": 390,
+      "fill": "$bg",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 12,
+      "padding": [
+        12,
+        16
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "JWEnj",
+          "name": "Header",
+          "width": "fill_container",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "YgVp2",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Kamar",
+              "fontFamily": "$font-body",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "JyNHe",
+              "fill": "$text-muted",
+              "content": "6/8 terisi",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rv1B3",
+          "name": "TabFilter",
+          "width": "fill_container",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "q4XJF",
+              "name": "ActiveTab",
+              "fill": "$primary",
+              "cornerRadius": 12,
+              "padding": [
+                8,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "sT4HF",
+                  "fill": "#FFFFFF",
+                  "content": "Semua",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "l4r2I",
+              "name": "InactiveTab",
+              "fill": "$bg-card",
+              "cornerRadius": 12,
+              "padding": [
+                8,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "E4mFhf",
+                  "fill": "$text-secondary",
+                  "content": "Terisi",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NLpWq",
+          "name": "RoomCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "sWRq5",
+              "fill": "$border",
+              "width": 10,
+              "height": 10
+            },
+            {
+              "type": "frame",
+              "id": "wsM8R",
+              "name": "RoomInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lB1iI",
+                  "fill": "$text-primary",
+                  "content": "Melati",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "whHjp",
+                  "fill": "$text-secondary",
+                  "content": "Bulanan · Rp 1.500.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "zuyDb",
+              "fill": "$text-muted",
+              "content": "Tersedia",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "L0Lcwq",
+          "name": "RoomCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "Q5Qkj",
+              "fill": "$success",
+              "width": 10,
+              "height": 10
+            },
+            {
+              "type": "frame",
+              "id": "x1YKPV",
+              "name": "RoomInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "izZLt",
+                  "fill": "$text-primary",
+                  "content": "Mawar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "L4Z6I",
+                  "fill": "$text-secondary",
+                  "content": "Bulanan · Rp 1.800.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "Ttknb",
+              "fill": "$success",
+              "content": "Terisi",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "NiWvr",
+          "name": "RoomCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "Ur3R8",
+              "fill": "$success",
+              "width": 10,
+              "height": 10
+            },
+            {
+              "type": "frame",
+              "id": "xd02e",
+              "name": "RoomInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "AYLfe",
+                  "fill": "$text-primary",
+                  "content": "K1",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "CUztB",
+                  "fill": "$text-secondary",
+                  "content": "Bulanan · Rp 1.500.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "ylKmk",
+              "fill": "$success",
+              "content": "Terisi",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Itx1v",
+          "name": "RoomCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "RGt3V",
+              "fill": "$border",
+              "width": 10,
+              "height": 10
+            },
+            {
+              "type": "frame",
+              "id": "hBCfV",
+              "name": "RoomInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fkb9c",
+                  "fill": "$text-primary",
+                  "content": "K2",
+                  "fontFamily": "$font-body",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "iBSxG",
+                  "fill": "$text-secondary",
+                  "content": "Harian · Rp 200.000",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "dapgA",
+              "fill": "$text-muted",
+              "content": "Tersedia",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "eYekx",
+          "name": "BottomNav",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 16,
+          "gap": 4,
+          "padding": [
+            12,
+            8
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "e1ZHtf",
+              "name": "Kamar",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Fa5qn",
+                  "fill": "$primary",
+                  "content": "🏠",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "u6wXSf",
+                  "fill": "$primary",
+                  "content": "Kamar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "u5wlyF",
+              "name": "Keuangan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "oa3Fs",
+                  "fill": "$text-secondary",
+                  "content": "💰",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "TwfsX",
+                  "fill": "$text-muted",
+                  "content": "Keuangan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bpSzx",
+              "name": "Dashboard",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "fgfwb",
+                  "fill": "$text-secondary",
+                  "content": "📊",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "I9yBQx",
+                  "fill": "$text-muted",
+                  "content": "Dashboard",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "p9YohC",
+              "name": "Permintaan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "qTh5C",
+                  "fill": "$text-secondary",
+                  "content": "🔧",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "OaVFl",
+                  "fill": "$text-muted",
+                  "content": "Permintaan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "O0bmm",
+              "name": "Profil",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "moX3e",
+                  "fill": "$text-secondary",
+                  "content": "👤",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "GWVS6",
+                  "fill": "$text-muted",
+                  "content": "Profil",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FuQkz",
+      "x": 1760,
+      "y": 0,
+      "name": "Screen Permintaan",
+      "clip": true,
+      "width": 390,
+      "fill": "$bg",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 12,
+      "padding": [
+        12,
+        16
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "xqOJh",
+          "name": "Header",
+          "width": "fill_container",
+          "gap": 8,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "nsMg5",
+              "fill": "$text-primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Permintaan",
+              "fontFamily": "$font-body",
+              "fontSize": 18,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "c5mCJl",
+              "fill": "$accent",
+              "content": "3 aktif",
+              "fontFamily": "$font-body",
+              "fontSize": 11,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "XmD97",
+          "name": "TabFilter",
+          "width": "fill_container",
+          "gap": 8,
+          "children": [
+            {
+              "type": "frame",
+              "id": "DXR0S",
+              "fill": "$primary",
+              "cornerRadius": 12,
+              "padding": [
+                8,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YUgYe",
+                  "fill": "#FFFFFF",
+                  "content": "Semua",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "600"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SKbzD",
+              "fill": "$bg-card",
+              "cornerRadius": 12,
+              "padding": [
+                8,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "UqWPb",
+                  "fill": "$text-secondary",
+                  "content": "Menunggu",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "B3dyh",
+              "fill": "$bg-card",
+              "cornerRadius": 12,
+              "padding": [
+                8,
+                14
+              ],
+              "children": [
+                {
+                  "type": "text",
+                  "id": "a9icbo",
+                  "fill": "$text-secondary",
+                  "content": "Selesai",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YJlTE",
+          "name": "RequestCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "kMOR0",
+              "fill": "$text-primary",
+              "content": "🔧",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "Q8YvUP",
+              "name": "ReqInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "lHnnz",
+                  "fill": "$text-primary",
+                  "content": "AC Rusak",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "Nr3wn",
+                  "fill": "$text-muted",
+                  "content": "Maintenance",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "Drs3K",
+              "fill": "$accent",
+              "content": "Menunggu",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N1JUf",
+          "name": "RequestCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "Nc5NF",
+              "fill": "$text-primary",
+              "content": "📦",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "hSAV2",
+              "name": "ReqInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JAL4I",
+                  "fill": "$text-primary",
+                  "content": "Stok Sabun",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "gCBjU",
+                  "fill": "$text-muted",
+                  "content": "Inventory",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "a5ZY5A",
+              "fill": "$primary",
+              "content": "Proses",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "X4KdF",
+          "name": "RequestCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "rpoJv",
+              "fill": "$text-primary",
+              "content": "🔧",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "hPf9L",
+              "name": "ReqInfo",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "YlxFr",
+                  "fill": "$text-primary",
+                  "content": "Kamar K1",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "text",
+                  "id": "h6gzh",
+                  "fill": "$text-muted",
+                  "content": "Maintenance",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "X0mihI",
+              "fill": "$success",
+              "content": "Selesai",
+              "fontFamily": "$font-body",
+              "fontSize": 10,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "R9Z3F2",
+          "name": "BottomNav",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 16,
+          "gap": 4,
+          "padding": [
+            12,
+            8
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "FrqGf",
+              "name": "Kamar",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "H9Twq",
+                  "fill": "$text-secondary",
+                  "content": "🏠",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "I8muCm",
+                  "fill": "$text-muted",
+                  "content": "Kamar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "C8fet",
+              "name": "Keuangan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "XrWFW",
+                  "fill": "$text-secondary",
+                  "content": "💰",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "TN3C1",
+                  "fill": "$text-muted",
+                  "content": "Keuangan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IdC35",
+              "name": "Dashboard",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "JfMmf",
+                  "fill": "$text-secondary",
+                  "content": "📊",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "s3UKg",
+                  "fill": "$text-muted",
+                  "content": "Dashboard",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "RWqro",
+              "name": "Permintaan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "N1VIU",
+                  "fill": "$primary",
+                  "content": "🔧",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "NHCz3",
+                  "fill": "$primary",
+                  "content": "Permintaan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "t0VCb5",
+              "name": "Profil",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "U73z6",
+                  "fill": "$text-secondary",
+                  "content": "👤",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "P2RKep",
+                  "fill": "$text-muted",
+                  "content": "Profil",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "IyL0d",
+      "x": 2210,
+      "y": 0,
+      "name": "Screen Profil",
+      "clip": true,
+      "width": 390,
+      "fill": "$bg",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 12,
+      "padding": [
+        12,
+        16
+      ],
+      "children": [
+        {
+          "type": "frame",
+          "id": "j1O0C",
+          "name": "Header",
+          "width": "fill_container",
+          "children": [
+            {
+              "type": "text",
+              "id": "JH2aC",
+              "fill": "$text-primary",
+              "content": "Profil",
+              "fontFamily": "$font-body",
+              "fontSize": 18,
+              "fontWeight": "700"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "S8GRo",
+          "name": "AvatarCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 16,
+          "layout": "vertical",
+          "gap": 8,
+          "padding": 20,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "M6ooUL",
+              "fill": "$primary",
+              "width": 56,
+              "height": 56
+            },
+            {
+              "type": "text",
+              "id": "wqVKl",
+              "fill": "$text-primary",
+              "content": "Farhan Khuwais",
+              "fontFamily": "$font-body",
+              "fontSize": 16,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "jYBye",
+              "fill": "$text-secondary",
+              "content": "admin@cozyliving.com",
+              "fontFamily": "$font-body",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "tlVtA",
+          "name": "InfoCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "qhGnW",
+              "opacity": 0.1,
+              "fill": "$primary",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "type": "frame",
+              "id": "J1aDjG",
+              "name": "InfoContent",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bEGpy",
+                  "fill": "$text-muted",
+                  "content": "Properti",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "Wm4dq",
+                  "fill": "$primary",
+                  "content": "Granada Cozy Living",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "cgtxa",
+          "name": "InfoCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "zpxIw",
+              "opacity": 0.1,
+              "fill": "$primary",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "type": "frame",
+              "id": "Inrfh",
+              "name": "InfoContent",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "aeQrf",
+                  "fill": "$text-muted",
+                  "content": "Role",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "uXvWd",
+                  "fill": "$text-primary",
+                  "content": "Super Admin",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "i6hh5",
+          "name": "InfoCard",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 14,
+          "gap": 12,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "ellipse",
+              "id": "hewaE",
+              "opacity": 0.1,
+              "fill": "$primary",
+              "width": 36,
+              "height": 36
+            },
+            {
+              "type": "frame",
+              "id": "v7J7F",
+              "name": "InfoContent",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 2,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "SksfU",
+                  "fill": "$text-muted",
+                  "content": "Skema",
+                  "fontFamily": "$font-body",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "U3K0qj",
+                  "fill": "$text-primary",
+                  "content": "Hybrid",
+                  "fontFamily": "$font-body",
+                  "fontSize": 13,
+                  "fontWeight": "600"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "MWeA2",
+          "name": "LogoutBtn",
+          "width": "fill_container",
+          "fill": "#FEF2F2",
+          "cornerRadius": 14,
+          "stroke": "#FECACA",
+          "strokeWidth": 1,
+          "padding": 14,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "LJZXT",
+              "fill": "$destructive",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Keluar dari Akun",
+              "textAlign": "center",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ry7az",
+          "name": "BottomNav",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 16,
+          "gap": 4,
+          "padding": [
+            12,
+            8
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "TnlrL",
+              "name": "Kamar",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "CBmBK",
+                  "fill": "$text-secondary",
+                  "content": "🏠",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "nwqou",
+                  "fill": "$text-muted",
+                  "content": "Kamar",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "c5aZbB",
+              "name": "Keuangan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "i30BFe",
+                  "fill": "$text-secondary",
+                  "content": "💰",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "faU9W",
+                  "fill": "$text-muted",
+                  "content": "Keuangan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "IgxCh",
+              "name": "Dashboard",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "N3khOQ",
+                  "fill": "$text-secondary",
+                  "content": "📊",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "JAgxr",
+                  "fill": "$text-muted",
+                  "content": "Dashboard",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "GQT13",
+              "name": "Permintaan",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Birak",
+                  "fill": "$text-secondary",
+                  "content": "🔧",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "L14MV",
+                  "fill": "$text-muted",
+                  "content": "Permintaan",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "XTZvW",
+              "name": "Profil",
+              "width": "fill_container",
+              "cornerRadius": 8,
+              "layout": "vertical",
+              "gap": 2,
+              "padding": [
+                4,
+                8
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "gzFyX",
+                  "fill": "$primary",
+                  "content": "👤",
+                  "fontFamily": "$font-body",
+                  "fontSize": 10,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "J7XFoX",
+                  "fill": "$primary",
+                  "content": "Profil",
+                  "fontFamily": "$font-body",
+                  "fontSize": 9,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "QoD7B",
+      "x": 2660,
+      "y": 0,
+      "name": "Screen Login",
+      "clip": true,
+      "width": 390,
+      "fill": "$bg",
+      "cornerRadius": 20,
+      "layout": "vertical",
+      "gap": 20,
+      "padding": [
+        60,
+        32
+      ],
+      "alignItems": "center",
+      "children": [
+        {
+          "type": "ellipse",
+          "id": "CeCfn",
+          "opacity": 0.15,
+          "fill": "$primary",
+          "width": 56,
+          "height": 56
+        },
+        {
+          "type": "text",
+          "id": "QtCyj",
+          "fill": "$text-primary",
+          "content": "Cozy Living",
+          "fontFamily": "$font-body",
+          "fontSize": 22,
+          "fontWeight": "700"
+        },
+        {
+          "type": "text",
+          "id": "FB9sb",
+          "fill": "$text-muted",
+          "content": "by Granada",
+          "fontFamily": "$font-body",
+          "fontSize": 13,
+          "fontWeight": "normal"
+        },
+        {
+          "type": "text",
+          "id": "z1xDs",
+          "fill": "$text-primary",
+          "content": "Email",
+          "fontFamily": "$font-body",
+          "fontSize": 12,
+          "fontWeight": "500"
+        },
+        {
+          "type": "frame",
+          "id": "quCpH",
+          "name": "EmailField",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 12,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "padding": [
+            14,
+            16
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "RsbiR",
+              "fill": "$text-muted",
+              "content": "contoh@email.com",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "B3KUU",
+          "fill": "$text-primary",
+          "content": "Password",
+          "fontFamily": "$font-body",
+          "fontSize": 12,
+          "fontWeight": "500"
+        },
+        {
+          "type": "frame",
+          "id": "K3OG3P",
+          "name": "PasswordField",
+          "width": "fill_container",
+          "fill": "$bg-card",
+          "cornerRadius": 12,
+          "stroke": "$border",
+          "strokeWidth": 1,
+          "padding": [
+            14,
+            16
+          ],
+          "children": [
+            {
+              "type": "text",
+              "id": "P84e7",
+              "fill": "$text-muted",
+              "content": "••••••••",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "BYwez",
+          "name": "LoginBtn",
+          "width": "fill_container",
+          "fill": "$primary",
+          "cornerRadius": 12,
+          "padding": 14,
+          "children": [
+            {
+              "type": "text",
+              "id": "zwnix",
+              "fill": "#FFFFFF",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Masuk",
+              "textAlign": "center",
+              "fontFamily": "$font-body",
+              "fontSize": 13,
+              "fontWeight": "600"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variables": {
+    "primary": {
+      "type": "color",
+      "value": "#5F7354"
+    },
+    "secondary": {
+      "type": "color",
+      "value": "#9AA67A"
+    },
+    "accent": {
+      "type": "color",
+      "value": "#D39A56"
+    },
+    "bg": {
+      "type": "color",
+      "value": "#FFFFFF"
+    },
+    "bg-card": {
+      "type": "color",
+      "value": "#F8F8F6"
+    },
+    "border": {
+      "type": "color",
+      "value": "#E8E8E4"
+    },
+    "text-primary": {
+      "type": "color",
+      "value": "#1A1A1A"
+    },
+    "text-secondary": {
+      "type": "color",
+      "value": "#6B7280"
+    },
+    "text-muted": {
+      "type": "color",
+      "value": "#9CA3AF"
+    },
+    "success": {
+      "type": "color",
+      "value": "#22C55E"
+    },
+    "warning": {
+      "type": "color",
+      "value": "#D39A56"
+    },
+    "destructive": {
+      "type": "color",
+      "value": "#EF4444"
+    },
+    "font-body": {
+      "type": "string",
+      "value": "Inter"
+    },
+    "font-mono": {
+      "type": "string",
+      "value": "JetBrains Mono"
+    },
+    "gap-xs": {
+      "type": "number",
+      "value": 4
+    },
+    "gap-sm": {
+      "type": "number",
+      "value": 8
+    },
+    "gap-md": {
+      "type": "number",
+      "value": 12
+    },
+    "gap-lg": {
+      "type": "number",
+      "value": 16
+    },
+    "gap-xl": {
+      "type": "number",
+      "value": 24
+    }
+  },
+  "fileToken": "c17a5d83-6d5e-4537-9b3e-272db2b63a8d"
+}
