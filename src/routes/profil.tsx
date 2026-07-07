@@ -61,10 +61,11 @@ export default function ProfilPage() {
     try {
       const ext = file.name.split(".").pop();
       const path = `avatars/${profile.id}.${ext}`;
-      await supabase.storage.from("room-photos").upload(path, file, { upsert: true });
+      const { error: uploadErr } = await supabase.storage.from("room-photos").upload(path, file, { upsert: true });
+      if (uploadErr) throw uploadErr;
       const { data: urlData } = supabase.storage.from("room-photos").getPublicUrl(path);
-      await updateProfile({ full_name: profile.fullName || "" });
-      await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", profile.id);
+      const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", profile.id);
+      if (dbErr) throw dbErr;
       await refreshProfile();
       setMsg("Foto profil diubah");
       setMsgOk(true);
