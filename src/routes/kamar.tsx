@@ -373,7 +373,7 @@ export default function KamarPage() {
         </div>
           {view === "rooms" && canManage && (
             <div className="flex gap-2">
-              {profile?.role === "super_admin" && (
+              {["super_admin", "investor_manager"].includes(profile?.role || "") && (
                 <button
                   onClick={() => { setShowRoomForm(!showRoomForm); if (!showRoomForm) setShowForm(false); }}
                   className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-white px-3.5 py-2 text-xs font-semibold text-primary"
@@ -526,8 +526,8 @@ export default function KamarPage() {
           </div>
         )}
 
-        {/* Room Add Form (Super Admin only) */}
-        {showRoomForm && profile?.role === "super_admin" && (
+        {/* Room Add Form (Super Admin & Investor Manager) */}
+        {showRoomForm && ["super_admin", "investor_manager"].includes(profile?.role || "") && (
           <div className="mb-4 rounded-2xl border border-border bg-card p-4 shadow-sm">
             <h3 className="mb-3 text-sm font-semibold text-foreground">Tambah Kamar Baru</h3>
             <div className="space-y-3">
@@ -664,10 +664,11 @@ export default function KamarPage() {
                     <p className="text-[11px] text-muted-foreground">
                       {room.name ? `Unit #${room.room_number}` : `Unit lantai ${Math.ceil(room.room_number / 2)}`}
                     </p>
+                    {room.property?.name && (
+                      <p className="text-[10px] text-muted-foreground/60 mt-px">{room.property.name}</p>
+                    )}
                     {room.creator && (
-                      <p className="text-[10px] text-muted-foreground/60 mt-px">
-                        Dibuat oleh: {room.creator.full_name}
-                      </p>
+                      <p className="text-[10px] text-muted-foreground/60">Dibuat oleh: {room.creator.full_name}</p>
                     )}
                     {tenant && (
                       <div className="mt-2 space-y-0.5">
@@ -725,7 +726,7 @@ export default function KamarPage() {
                 )}
 
                 {/* Room actions — for empty rooms only */}
-                {profile?.role === "super_admin" && room.status !== "terisi" && (
+                {["super_admin", "investor_manager"].includes(profile?.role || "") && room.status !== "terisi" && (
                   <div className="border-t border-border px-4 py-2 flex items-center gap-4 justify-end">
                     <button onClick={() => startEditRoom(room)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit kamar">
                       <Pencil className="h-3.5 w-3.5" />
@@ -761,7 +762,7 @@ export default function KamarPage() {
                 )}
 
                 {/* Edit room form */}
-                {editingRoom?.id === room.id && profile?.role === "super_admin" && (() => {
+                {editingRoom?.id === room.id && ["super_admin", "investor_manager"].includes(profile?.role || "") && (() => {
                   const er = editingRoom!;
                   return (
                   <div className="border-t border-border bg-muted/30 px-4 py-3 space-y-2">

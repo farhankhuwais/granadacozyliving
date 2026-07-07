@@ -2,9 +2,11 @@ node_modules/
 .env.local
 .env*.local
 dist/
+dev-dist/
 build/
 .DS_Store
 *.log
 .agents/
-*.d.ts
 vite.config.js
+
+.vercel

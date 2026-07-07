@@ -9,9 +9,9 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const navItems = [
-  { path: "/", icon: LayoutDashboard, label: "Dashboard", roles: ["super_admin", "investor_only", "manager_only", "investor_manager"] },
   { path: "/kamar", icon: BedDouble, label: "Kamar", roles: ["super_admin", "investor_only", "manager_only", "investor_manager"] },
   { path: "/keuangan", icon: Wallet, label: "Keuangan", roles: ["super_admin", "investor_only", "investor_manager"] },
+  { path: "/", icon: LayoutDashboard, label: "Dashboard", roles: ["super_admin", "investor_only", "manager_only", "investor_manager"] },
   { path: "/permintaan", icon: ClipboardList, label: "Permintaan", roles: ["super_admin", "manager_only", "investor_manager"] },
   { path: "/profil", icon: User, label: "Profil", roles: ["super_admin", "investor_only", "manager_only", "investor_manager"] },
 ];

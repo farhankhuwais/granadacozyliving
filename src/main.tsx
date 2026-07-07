@@ -13,6 +13,26 @@ const queryClient = new QueryClient({
   },
 });
 
+// Service worker update handler
+(async () => {
+  try {
+    const { registerSW } = await import("virtual:pwa-register");
+    let updateSW: ((reloadPage?: boolean) => Promise<void>) | undefined;
+    updateSW = registerSW({
+      onNeedRefresh() {
+        if (confirm("Update tersedia! Muat ulang halaman untuk menggunakan versi terbaru?")) {
+          updateSW?.(true);
+        }
+      },
+      onOfflineReady() {
+        console.log("[PWA] App siap digunakan offline");
+      },
+    });
+  } catch {
+    console.log("[PWA] SW registration skipped");
+  }
+})();
+
 console.log("[CozyLiving] main.tsx: rendering");
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

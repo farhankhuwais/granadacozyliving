@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useProperties } from "@/hooks/use-properties";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import { Link } from "react-router-dom";
@@ -15,14 +16,41 @@ export default function ProfilPage() {
   const [msg, setMsg] = useState("");
   const [msgOk, setMsgOk] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [editingProperty, setEditingProperty] = useState(false);
+  const [editPropertyId, setEditPropertyId] = useState("");
+  const [propertyLocation, setPropertyLocation] = useState("");
+  const [propSaving, setPropSaving] = useState(false);
+  const { data: allProperties } = useProperties();
 
   useEffect(() => {
     if (!profile?.propertyId) { setPropertyName("—"); return; }
     (async () => {
-      const { data } = await supabase.from("properties").select("name").eq("id", profile.propertyId).single();
+      const { data } = await supabase.from("properties").select("name, location").eq("id", profile.propertyId).single();
       setPropertyName(data?.name || "—");
+      setPropertyLocation(data?.location || "");
     })();
   }, [profile?.propertyId]);
+
+  async function handleSaveProperty() {
+    if (!editPropertyId) return;
+    setPropSaving(true);
+    try {
+      const { error } = await supabase.from("profiles").update({ property_id: editPropertyId }).eq("id", profile?.id);
+      if (error) throw error;
+      const prop = allProperties?.find(p => p.id === editPropertyId);
+      setPropertyName(prop?.name || "—");
+      setPropertyLocation(prop?.location || "");
+      setEditingProperty(false);
+      await refreshProfile();
+      setMsg("Properti berhasil diubah");
+      setMsgOk(true);
+    } catch (e: unknown) {
+      setMsg(e instanceof Error ? e.message : "Gagal");
+      setMsgOk(false);
+    }
+    setPropSaving(false);
+    setTimeout(() => setMsg(""), 3000);
+  }
 
   async function handleSaveName() {
     if (!editVal.trim()) return;
@@ -136,10 +164,34 @@ export default function ProfilPage() {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/5">
               <Building2 className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Properti</p>
-              <p className="text-sm font-semibold text-foreground">{propertyName || "—"}</p>
-            </div>
+            {editingProperty ? (
+              <div className="flex-1 space-y-2">
+                <select value={editPropertyId} onChange={e => setEditPropertyId(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground focus:border-primary focus:outline-none" autoFocus>
+                  <option value="">Pilih properti...</option>
+                  {allProperties?.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}{p.location ? ` — ${p.location}` : ""}</option>
+                  ))}
+                </select>
+                <div className="flex items-center gap-2">
+                  <button onClick={handleSaveProperty} disabled={propSaving || !editPropertyId} className="text-success"><Check className="h-4 w-4" /></button>
+                  <button onClick={() => setEditingProperty(false)} className="text-muted-foreground"><X className="h-4 w-4" /></button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Properti</p>
+                  <p className="text-sm font-semibold text-foreground">{propertyName || "—"}</p>
+                  {propertyLocation && <p className="text-xs text-muted-foreground">{propertyLocation}</p>}
+                </div>
+                {profile?.role === "super_admin" && (
+                  <button onClick={() => { setEditingProperty(true); setEditPropertyId(profile?.propertyId || ""); }} className="text-muted-foreground hover:text-foreground">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 shadow-sm">

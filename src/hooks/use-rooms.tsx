@@ -12,7 +12,7 @@ export function useRooms() {
     queryFn: async () => {
       let query = supabase
         .from("rooms")
-        .select("*, tenants(*), creator:profiles!created_by(full_name)");
+        .select("*, tenants(*), creator:profiles!created_by(full_name), property:properties!property_id(name)");
 
       if (!isSuperAdmin && propertyId) {
         query = query.eq("property_id", propertyId);

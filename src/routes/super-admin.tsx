@@ -1,4 +1,5 @@
 import { useDashboard } from "@/hooks/use-dashboard";
+import { useAuth } from "@/hooks/use-auth";
 import MobileLayout from "@/components/MobileLayout";
 import { Link } from "react-router-dom";
 import {
@@ -22,7 +23,9 @@ function StatCard({ label, value, sub, highlight }: { label: string; value: stri
 }
 
 export default function SuperAdminDashboardPage() {
+  const { profile } = useAuth();
   const { data: stats, isLoading } = useDashboard();
+  const isSuperAdmin = profile?.role === "super_admin";
 
   if (isLoading) {
     return (
@@ -57,8 +60,8 @@ export default function SuperAdminDashboardPage() {
     <MobileLayout>
       <div className="px-5 pt-12 pb-6">
         <div className="mb-6">
-          <h1 className="text-xl font-bold text-foreground">Dashboard Super Admin</h1>
-          <p className="text-sm text-muted-foreground">Cozy Living by Granada — Kendali penuh</p>
+          <h1 className="text-xl font-bold text-foreground">{isSuperAdmin ? "Dashboard Super Admin" : "Dashboard"}</h1>
+          <p className="text-sm text-muted-foreground">{isSuperAdmin ? "Cozy Living by Granada — Kendali penuh" : "Cozy Living by Granada"}</p>
         </div>
 
         {/* Investor section */}
