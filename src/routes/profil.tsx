@@ -60,8 +60,8 @@ export default function ProfilPage() {
     if (!profile?.id) return;
     try {
       const ext = file.name.split(".").pop();
-      const path = `avatars/${profile.id}.${ext}`;
-      const { error: uploadErr } = await supabase.storage.from("room-photos").upload(path, file, { upsert: true });
+      const path = `avatars/${profile.id}_${Date.now()}.${ext}`;
+      const { error: uploadErr } = await supabase.storage.from("room-photos").upload(path, file);
       if (uploadErr) throw uploadErr;
       const { data: urlData } = supabase.storage.from("room-photos").getPublicUrl(path);
       const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: urlData.publicUrl }).eq("id", profile.id);
