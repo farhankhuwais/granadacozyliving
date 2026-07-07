@@ -15,12 +15,12 @@ interface UserAccount {
   role: string;
   created_at: string;
   property_id?: string | null;
-  properties?: { name: string }[] | null;
 }
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const { data: properties, isLoading: loadingProps } = useProperties();
+  const propMap = new Map(properties?.map(p => [p.id, p.name]) || []);
   const [users, setUsers] = useState<UserAccount[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [searchUser, setSearchUser] = useState("");
@@ -49,7 +49,7 @@ export default function SignupPage() {
     setLoadingUsers(true);
     const { data } = await supabase
       .from("profiles")
-      .select("id, email, full_name, role, created_at, property_id, properties(name)")
+      .select("id, email, full_name, role, created_at, property_id")
       .neq("role", "super_admin")
       .order("created_at", { ascending: false });
     setUsers(data || []);
@@ -305,7 +305,7 @@ export default function SignupPage() {
                 <div key={u.id} className="flex items-center justify-between rounded-xl border border-border bg-card px-3.5 py-2.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground truncate">{u.full_name || "—"}</p>
-                    <p className="text-[10px] text-muted-foreground">{u.email} · {u.role.replace("_", " ")} · {u.properties?.[0]?.name || "—"}</p>
+                    <p className="text-[10px] text-muted-foreground">{u.email} · {u.role.replace("_", " ")} · {propMap.get(u.property_id) || "—"}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span className="text-[9px] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("id-ID")}</span>
