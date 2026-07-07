@@ -42,10 +42,10 @@ export default function ProfilPage() {
     setLoading(true);
     try {
       await updateEmail(editVal.trim());
-      setMsg("Email verifikasi dikirim ke email baru");
+      setMsg("Email verifikasi dikirim ke email baru. Cek inbox untuk konfirmasi.");
       setMsgOk(true);
       setEditing(null);
-    } catch (e: unknown) { setMsg(e instanceof Error ? e.message : "Gagal"); setMsgOk(false); }
+    } catch (e: unknown) { setMsg(`Gagal: ${e instanceof Error ? e.message : String(e)}`); setMsgOk(false); }
     setLoading(false);
     setTimeout(() => setMsg(""), 3000);
   }
