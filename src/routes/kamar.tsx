@@ -375,7 +375,7 @@ export default function KamarPage() {
             <div className="flex gap-2">
               {profile?.role === "super_admin" && (
                 <button
-                  onClick={() => setShowRoomForm(!showRoomForm)}
+                  onClick={() => { setShowRoomForm(!showRoomForm); if (!showRoomForm) setShowForm(false); }}
                   className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-white px-3.5 py-2 text-xs font-semibold text-primary"
                 >
                   <DoorOpen className="h-3.5 w-3.5" />
@@ -383,7 +383,7 @@ export default function KamarPage() {
                 </button>
               )}
               <button
-                onClick={() => setShowForm(!showForm)}
+                onClick={() => { setShowForm(!showForm); if (!showForm) setShowRoomForm(false); }}
                 className="flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground"
               >
                 {showForm ? <X className="h-3.5 w-3.5" /> : <Plus className="h-3.5 w-3.5" />}
