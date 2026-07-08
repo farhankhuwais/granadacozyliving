@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRooms, useCreateRoom, useUpdateRoom } from "@/hooks/use-rooms";
 import { supabase } from "@/integrations/supabase/client";
+import { insertAuditLog } from "@/lib/audit-log";
 import {
   useCreateTenant,
   useUpdateTenant,
@@ -230,6 +231,12 @@ export default function KamarPage() {
         paidSoFar,
       });
       alert(isPartial ? `Pembayaran Rp ${amount.toLocaleString("id-ID")} dicatat. Sisa: Rp ${(fullAmount - totalPaid).toLocaleString("id-ID")}` : "Pembayaran lunas tercatat");
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: isPartial ? "bayar_sebagian" : "bayar_lunas", target_type: "tenant",
+        target_id: tenant.id, target_label: tenant.name,
+        details: `Rp ${amount.toLocaleString("id-ID")} - ${label}`,
+      });
     } catch (e: unknown) {
       const msg = typeof e === "object" && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);
       alert(`Gagal: ${msg}`);
@@ -283,6 +290,11 @@ export default function KamarPage() {
         const photos = await getRoomPhotos(result.id);
         setRoomPhotos(prev => ({ ...prev, [result.id]: photos }));
       }
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "tambah_kamar", target_type: "room", target_id: result.id,
+        target_label: roomForm.name.trim(), details: `Tipe: ${roomForm.type}`,
+      });
     } catch (e) { alert(`Gagal: ${e instanceof Error ? e.message : "error"}`); }
   }
 
@@ -305,6 +317,11 @@ export default function KamarPage() {
         if (fallback.error) throw fallback.error;
       }
       alert(`Kamar ${roomNumber} berhasil dihapus`);
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "hapus_kamar", target_type: "room", target_id: roomId,
+        target_label: `Kamar ${roomNumber}`,
+      });
       window.location.reload();
     } catch (e: unknown) {
       const msg = typeof e === 'object' && e ? JSON.stringify(e, Object.getOwnPropertyNames(e)) : String(e);

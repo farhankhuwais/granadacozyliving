@@ -1,6 +1,7 @@
 import { BrowserRouter } from "react-router-dom";
 import BottomNav from "@/components/BottomNav";
 import PWABanner from "@/components/PWABanner";
+import IdleTimer from "@/components/IdleTimer";
 
 interface MobileLayoutProps {
   children: React.ReactNode;
@@ -11,6 +12,7 @@ export default function MobileLayout({ children, hideNav }: MobileLayoutProps) {
   return (
     <div className="mx-auto min-h-screen max-w-lg bg-white">
       <PWABanner />
+      <IdleTimer />
       <div className="pt-2">{children}</div>
       {!hideNav && <div className="h-20" />}
       {!hideNav && <BottomNav />}

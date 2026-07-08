@@ -16,7 +16,13 @@ export default function LoginPage() {
 
     const result = await signIn(email, password);
     if (result.error) {
-      setError(result.error);
+      if (result.error.toLowerCase().includes("rate limit") || result.error.toLowerCase().includes("too many")) {
+        setError("Terlalu banyak percobaan login. Silakan coba lagi dalam 15 menit.");
+      } else if (result.error.toLowerCase().includes("invalid login")) {
+        setError("Email atau password salah.");
+      } else {
+        setError(result.error);
+      }
     }
     setLoading(false);
   }

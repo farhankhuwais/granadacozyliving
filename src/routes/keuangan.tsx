@@ -4,6 +4,7 @@ import {
   useCreateTransaction,
 } from "@/hooks/use-transactions";
 import { useAuth } from "@/hooks/use-auth";
+import { insertAuditLog } from "@/lib/audit-log";
 import MobileLayout from "@/components/MobileLayout";
 import {
   ArrowUpRight,
@@ -72,6 +73,12 @@ export default function KeuanganPage() {
 
     try {
       await createTransaction.mutateAsync(form as unknown as Record<string, unknown>);
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "buat_transaksi", target_type: "transaction",
+        target_label: `${form.type} - ${form.category}`,
+        details: `Rp ${form.amount.toLocaleString("id-ID")}`,
+      });
       setShowForm(false);
       setForm({
         type: "income",

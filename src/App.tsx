@@ -9,6 +9,7 @@ import KamarPage from "@/routes/kamar";
 import KeuanganPage from "@/routes/keuangan";
 import PermintaanPage from "@/routes/permintaan";
 import ProfilPage from "@/routes/profil";
+import RiwayatPage from "@/routes/riwayat";
 import SuperAdminDashboardPage from "@/routes/super-admin";
 import { AppWithRouter } from "@/components/MobileLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -54,6 +55,9 @@ function DashboardRouter() {
         </ProtectedRoute>
       } />
       <Route path="/profil" element={<ProtectedRoute><ProfilPage /></ProtectedRoute>} />
+      <Route path="/riwayat" element={
+        <ProtectedRoute roles={["super_admin"]}><RiwayatPage /></ProtectedRoute>
+      } />
       <Route path="/admin/users" element={
         <ProtectedRoute roles={["super_admin"]}><SignupPage /></ProtectedRoute>
       } />

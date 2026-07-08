@@ -7,6 +7,7 @@ import {
   useDeleteAllRequests,
 } from "@/hooks/use-requests";
 import { useAuth } from "@/hooks/use-auth";
+import { insertAuditLog } from "@/lib/audit-log";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import {
@@ -110,6 +111,11 @@ export default function PermintaanPage() {
       }
 
       resetForm();
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "buat_permintaan", target_type: "request", target_id: result?.id,
+        target_label: form.title, details: `Tipe: ${form.type}`,
+      });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e);
       setFormError(`Gagal: ${msg}`);
@@ -119,32 +125,56 @@ export default function PermintaanPage() {
   }
 
   async function handleApprove(id: string) {
+    const req = requests?.find(r => r.id === id);
     try {
       await updateStatus.mutateAsync({ id, status: "diizinkan", approvedBy: profile?.id });
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "approve_permintaan", target_type: "request", target_id: id,
+        target_label: req?.title,
+      });
     } catch {
       alert("Gagal approve request");
     }
   }
 
   async function handleReject(id: string) {
+    const req = requests?.find(r => r.id === id);
     try {
       await updateStatus.mutateAsync({ id, status: "ditolak", approvedBy: profile?.id });
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "tolak_permintaan", target_type: "request", target_id: id,
+        target_label: req?.title,
+      });
     } catch {
       alert("Gagal reject request");
     }
   }
 
   async function handleProses(id: string) {
+    const req = requests?.find(r => r.id === id);
     try {
       await updateStatus.mutateAsync({ id, status: "proses" });
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "proses_permintaan", target_type: "request", target_id: id,
+        target_label: req?.title,
+      });
     } catch {
       alert("Gagal update status");
     }
   }
 
   async function handleSelesai(id: string) {
+    const req = requests?.find(r => r.id === id);
     try {
       await updateStatus.mutateAsync({ id, status: "selesai" });
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "selesai_permintaan", target_type: "request", target_id: id,
+        target_label: req?.title,
+      });
     } catch {
       alert("Gagal update status");
     }
@@ -152,8 +182,15 @@ export default function PermintaanPage() {
 
   async function handleDelete(id: string) {
     if (!confirm("Hapus permintaan ini?")) return;
-    try { await deleteRequest.mutateAsync(id); }
-    catch { alert("Gagal hapus"); }
+    const req = requests?.find(r => r.id === id);
+    try {
+      await deleteRequest.mutateAsync(id);
+      await insertAuditLog({
+        user_id: profile!.id, user_email: profile!.email, user_role: profile!.role,
+        action: "hapus_permintaan", target_type: "request", target_id: id,
+        target_label: req?.title,
+      });
+    } catch { alert("Gagal hapus"); }
   }
 
   async function handleDeleteAll() {

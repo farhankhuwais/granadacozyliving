@@ -4,7 +4,7 @@ import { useProperties } from "@/hooks/use-properties";
 import { supabase } from "@/integrations/supabase/client";
 import MobileLayout from "@/components/MobileLayout";
 import { Link } from "react-router-dom";
-import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X, Shield } from "lucide-react";
+import { User, Building2, BedDouble, TrendingUp, LogOut, Pencil, Check, X, Shield, Clock } from "lucide-react";
 
 export default function ProfilPage() {
   const { profile, signOut, updateProfile, updateEmail, updatePassword, refreshProfile } = useAuth();
@@ -262,16 +262,26 @@ export default function ProfilPage() {
           <p className={`mb-4 text-sm text-center ${msgOk ? "text-success" : "text-destructive"}`}>{msg}</p>
         )}
 
-        {/* Admin Panel (Super Admin only) */}
+        {/* Admin Panel & Riwayat (Super Admin only) */}
         {profile?.role === "super_admin" && (
-          <Link to="/admin/users"
-            className="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left shadow-sm hover:bg-primary/10 transition-colors mb-6">
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold text-foreground">Panel Admin</span>
-            </div>
-            <span className="text-xs text-muted-foreground">Kelola akun →</span>
-          </Link>
+          <div className="mb-6 space-y-2">
+            <Link to="/admin/users"
+              className="flex w-full items-center justify-between rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left shadow-sm hover:bg-primary/10 transition-colors">
+              <div className="flex items-center gap-3">
+                <Shield className="h-5 w-5 text-primary" />
+                <span className="text-sm font-semibold text-foreground">Panel Admin</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Kelola akun →</span>
+            </Link>
+            <Link to="/riwayat"
+              className="flex w-full items-center justify-between rounded-2xl border border-border bg-card p-4 text-left shadow-sm hover:bg-muted/50 transition-colors">
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm font-semibold text-foreground">Riwayat Aktivitas</span>
+              </div>
+              <span className="text-xs text-muted-foreground">Lihat →</span>
+            </Link>
+          </div>
         )}
 
         <button onClick={signOut} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 p-4 text-destructive transition-colors hover:bg-destructive/10">
