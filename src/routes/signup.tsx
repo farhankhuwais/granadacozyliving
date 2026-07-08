@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useProperties, useCreateProperty, useDeleteProperty, useUpdateProperty } from "@/hooks/use-properties";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import MobileLayout from "@/components/MobileLayout";
-import { ArrowLeft, Trash2, Plus, Pencil, Check, X } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Pencil, Check, X, KeyRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 type UserRole = "investor_only" | "manager_only" | "investor_manager";
@@ -48,6 +48,9 @@ export default function SignupPage() {
   const [editValName, setEditValName] = useState("");
   const [editValRole, setEditValRole] = useState("");
   const [editValProp, setEditValProp] = useState("");
+  const [resetUserId, setResetUserId] = useState<string | null>(null);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetting, setResetting] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -69,6 +72,30 @@ export default function SignupPage() {
     const { error } = await supabase.from("profiles").delete().eq("id", id);
     if (error) { alert(error.message); return; }
     setUsers(prev => prev.filter(u => u.id !== id));
+  }
+
+  async function handleResetPassword() {
+    if (!resetUserId || resetPassword.length < 8) {
+      alert("Password minimal 8 karakter");
+      return;
+    }
+    setResetting(true);
+    try {
+      const token = (await supabase.auth.getSession()).data.session?.access_token;
+      const res = await fetch("/api/set-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ user_id: resetUserId, new_password: resetPassword }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Gagal");
+      alert("Password berhasil direset");
+      setResetUserId(null);
+      setResetPassword("");
+    } catch (e) {
+      alert(`Gagal: ${e instanceof Error ? e.message : "error"}`);
+    }
+    setResetting(false);
   }
 
   function startEditUser(u: UserAccount) {
@@ -390,6 +417,9 @@ export default function SignupPage() {
                   </div>
                   <div className="flex items-center gap-2 shrink-0 ml-2">
                     <span className="text-[9px] text-muted-foreground">{new Date(u.created_at).toLocaleDateString("id-ID")}</span>
+                    <button onClick={() => { setResetUserId(u.id); setResetPassword(""); }} className="text-muted-foreground hover:text-primary transition-colors" title="Reset password">
+                      <KeyRound className="h-3 w-3" />
+                    </button>
                     <button onClick={() => startEditUser(u)} className="text-muted-foreground hover:text-primary transition-colors" title="Edit">
                       <Pencil className="h-3 w-3" />
                     </button>
@@ -403,6 +433,31 @@ export default function SignupPage() {
           )}
         </div>)}
       </MobileLayout>
+
+      {/* Reset Password Modal */}
+      {resetUserId && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4" onClick={() => setResetUserId(null)}>
+          <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="mb-1 text-sm font-semibold text-foreground">Reset Password</h3>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Masukkan password baru untuk akun ini.
+            </p>
+            <input type="password" value={resetPassword} onChange={e => setResetPassword(e.target.value)}
+              placeholder="Password baru (min 8 karakter)"
+              className="mb-4 w-full rounded-xl border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:border-primary focus:outline-none" />
+            <div className="flex gap-2">
+              <button onClick={handleResetPassword} disabled={resetting || resetPassword.length < 8}
+                className="flex-1 rounded-xl bg-primary py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
+                {resetting ? "Menyimpan..." : "Simpan"}
+              </button>
+              <button onClick={() => setResetUserId(null)}
+                className="flex-1 rounded-xl bg-muted py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted/80">
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ProtectedRoute>
   );
 }
